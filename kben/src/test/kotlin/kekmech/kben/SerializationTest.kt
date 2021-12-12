@@ -1,9 +1,11 @@
 package kekmech.kben
 
 import kekmech.kben.mocks.UserCredentials
+import kekmech.kben.mocks.UserCredentialsTypeAdapter
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 
 class SerializationTest {
 
@@ -32,15 +34,6 @@ class SerializationTest {
     }
 
     @Test
-    fun `byte arrays to bencode`() {
-        val kben = Kben()
-        assertArrayEquals(
-            byteArrayOf(1, 2, 3, 4, 5),
-            kben.toBencode(byteArrayOf(1, 2, 3, 4, 5)),
-        )
-    }
-
-    @Test
     fun `lists to bencode`() {
         val kben = Kben()
         assertArrayEquals(
@@ -53,8 +46,8 @@ class SerializationTest {
     fun `dictionaries to bencode`() {
         val kben = Kben()
         assertArrayEquals(
-            "d4:name5:Anton4:lang6:Kotlin3:agei24ee".toByteArray(),
-            kben.toBencode(mapOf("name" to "Anton", "lang" to "Kotlin", "age" to 24))
+            "d3:agei24e4:lang6:Kotlin4:name5:Antone".toByteArray(),
+            kben.toBencode(mapOf("name" to "Anton", "lang" to "Kotlin", "age" to 24)),
         )
     }
 
@@ -67,9 +60,51 @@ class SerializationTest {
                 password = "world",
             )
 
-        println(listOf("hello world")::class.java)
-        assertThrows<NotImplementedError> {
+        assertThrows<IllegalStateException> {
             kben.toBencode(credentials)
         }
+    }
+
+    @Test
+    fun `objects to bencode with type adapter`() {
+        val kben = Kben(genericTypeAdapters = mapOf(UserCredentials::class to UserCredentialsTypeAdapter()))
+        val credentials =
+            UserCredentials(
+                username = "hello",
+                password = "world",
+            )
+
+        assertArrayEquals(
+            "d8:password5:world8:username5:helloe".toByteArray(),
+            kben.toBencode(credentials),
+        )
+    }
+
+    @Test
+    fun `deep data structure to bencode`() {
+        val kben = Kben()
+        assertArrayEquals(
+            """
+                d
+                    8:password  5:world 
+                    7:private   d
+                        3:age   i50e
+                        4:list  l i1e i2e i3e e
+                    e
+                    8:username  5:hello
+                e
+                """.trimIndent()
+                .filterNot { it.isWhitespace() || it == '\n' }.toByteArray(),
+            kben.toBencode(
+                mapOf(
+                    "password" to "world",
+                    "private" to mapOf(
+                        "age" to 50,
+                        "list" to listOf(1, 2, 3),
+                    ),
+                    "username" to "hello",
+                )
+            )
+        )
     }
 }

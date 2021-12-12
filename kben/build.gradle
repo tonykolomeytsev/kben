@@ -24,7 +24,3 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "11"
 }
-
-dependencies {
-    implementation("com.google.code.gson:gson:2.8.5")
-}

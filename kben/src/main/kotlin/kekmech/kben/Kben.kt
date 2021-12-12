@@ -2,21 +2,23 @@ package kekmech.kben
 
 import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
+import kekmech.kben.domain.StandardTypeAdapters
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import java.io.ByteArrayInputStream
+import kotlin.reflect.KClass
 
 class Kben(
-    private val typeAdapters: Map<Class<*>, TypeAdapter<*>> = mapOf(),
+    genericTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>> = mapOf(),
 ) {
+
+    private val typeAdapters = genericTypeAdapters + StandardTypeAdapters
 
     fun <T : Any> toBencode(obj: T): ByteArray =
         SerializationContext(typeAdapters).toBencodeByteArray(obj)
 
-    fun fromBencode(byteArrayInputStream: ByteArrayInputStream): BencodeElement =
-        DeserializationContext(typeAdapters).fromBencodeByteArray(byteArrayInputStream)
-
-    fun fromBencode(byteArray: ByteArray): BencodeElement = fromBencode(byteArray.inputStream())
+    fun <T : Any> fromBencode(byteArrayInputStream: ByteArrayInputStream, kClass: KClass<T>): T =
+        DeserializationContext(typeAdapters).fromBencodeByteArray(byteArrayInputStream, kClass)
 
     internal companion object {
 

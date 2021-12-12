@@ -8,44 +8,35 @@ import kekmech.kben.Kben.Companion.STRING_SEPARATOR
 import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.dto.BencodeElement.*
 import java.io.ByteArrayOutputStream
+import kotlin.reflect.KClass
 
 class SerializationContext(
-    private val typeAdapters: Map<Class<*>, TypeAdapter<*>>,
+    private val typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
 ) {
 
-    fun <T : Any> toBencode(obj: T?): BencodeElement {
-        return when (obj) {
-            null -> BencodeString("4:null".toByteArray())
-            is String -> BencodeString(obj)
-            is Int -> BencodeInteger(obj.toLong())
-            is Long -> BencodeInteger(obj)
-            is ByteArray -> BencodeString(obj)
-            is Iterable<*> -> BencodeList(obj.map(::toBencode))
-            is Map<*, *> -> BencodeDictionary(
-                obj
-                    .mapKeys { (key, _) ->
-                        key as? String ?: error("All keys in bencode dictionary must be a valid UTF-8 string: \"${obj}\"")
-                    }
-                    .mapValues { (_, value) -> toBencode(value) }
-                    .toSortedMap()
-            )
-            else -> {
-                @Suppress("UNCHECKED_CAST")
-                (typeAdapters[obj::class.java] as? TypeAdapter<T>)
-                    ?.toBencode(obj, obj::class.java.componentType, this)
-                    ?: throw NotImplementedError("Serialization for class ${obj::class.java} not implemented")
-            }
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> toBencode(obj: T): BencodeElement {
+        val typeAdapter = (typeAdapters[obj::class] as? TypeAdapter<T>)
+        if (typeAdapter != null) {
+            return typeAdapter.toBencode(obj, this)
         }
+        if (obj is Map<*, *>) {
+            return MapTypeAdapter().toBencode(obj, this)
+        }
+        if (obj is Iterable<*>) {
+            return IterableTypeAdapter().toBencode(obj, this)
+        }
+        throw IllegalStateException("TypeAdapter for type ${obj::class} not registered")
     }
 
-    internal fun <T : Any> toBencodeByteArray(obj: T?): ByteArray =
+    internal fun <T : Any> toBencodeByteArray(obj: T): ByteArray =
         ByteArrayOutputStream()
             .apply { toBencode(obj).writeTo(this) }
             .toByteArray()
 
     private fun BencodeElement.writeTo(buffer: ByteArrayOutputStream) {
         when (this) {
-            is BencodeString -> buffer.apply {
+            is BencodeByteArray -> buffer.apply {
                 write(content.size.toString().toByteArray())
                 write(STRING_SEPARATOR)
                 write(content)
@@ -65,7 +56,7 @@ class SerializationContext(
             is BencodeDictionary -> buffer.apply {
                 write(START_DICTIONARY)
                 entries.forEach { (key, value) ->
-                    BencodeString(key.toByteArray()).writeTo(buffer)
+                    BencodeByteArray(key.toByteArray()).writeTo(buffer)
                     value.writeTo(buffer)
                 }
                 write(END)

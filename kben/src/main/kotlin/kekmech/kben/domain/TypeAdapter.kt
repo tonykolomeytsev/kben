@@ -1,17 +1,14 @@
 package kekmech.kben.domain
 
-import kekmech.kben.Kben
 import kekmech.kben.domain.dto.BencodeElement
-import java.lang.reflect.Type
-import kotlin.reflect.KClass
 
-abstract class TypeAdapter<T : Any>(private val kClass: KClass<T>) {
+abstract class TypeAdapter<T : Any> {
 
-    open fun toBencode(src: T, genericType: Type?, context: SerializationContext): BencodeElement {
-        throw NotImplementedError("Serialization for class ${kClass.java} not implemented")
+    open fun toBencode(value: T, context: SerializationContext): BencodeElement {
+        throw NotImplementedError("Serialization for class $this not implemented")
     }
 
-    open fun fromBencode(src: BencodeElement, genericType: Type?, kben: Kben): T {
-        throw NotImplementedError("Serialization for class ${kClass.java} not implemented")
+    open fun fromBencode(value: BencodeElement, context: DeserializationContext): T {
+        throw NotImplementedError("Serialization for class $this not implemented")
     }
 }

@@ -5,18 +5,21 @@ import java.util.*
 
 sealed class BencodeElement {
 
-    data class BencodeString(val content: ByteArray) : BencodeElement() {
+    data class BencodeByteArray(val content: ByteArray) : BencodeElement() {
 
         constructor(string: String) : this(string.toByteArray())
 
-        val string: String get() = String(content)
+        val asString: String get() = String(content)
 
-        val hexString: String get() = String.format("%064x", BigInteger(1, content))
+        val asHexString: String get() = String.format("%064x", BigInteger(1, content))
+
+        val isValidUTF8String: Boolean get() =
+            content.all { Char(it.toInt()).isDefined() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
-            other as BencodeString
+            other as BencodeByteArray
             return content.contentEquals(other.content)
         }
 

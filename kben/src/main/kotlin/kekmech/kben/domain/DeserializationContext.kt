@@ -8,13 +8,30 @@ import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.dto.BencodeElement.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.time.Year
+import kotlin.reflect.KClass
 
 class DeserializationContext(
-    private val typeAdapters: Map<Class<*>, TypeAdapter<*>>,
+    private val typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
 ) {
 
-    fun fromBencode(byteArrayInputStream: ByteArrayInputStream): BencodeElement =
-        byteArrayInputStream.use { decodeElement(it) ?: error("Broken Bencode schema") }
+    fun <T : Any> fromBencodeByteArray(byteArrayInputStream: ByteArrayInputStream, kClass: KClass<T>): T =
+        byteArrayInputStream
+            .use { decodeElement(it) ?: error("Broken Bencode schema") }
+            .let { fromBencode(it, kClass) }
+
+    internal fun <T : Any> fromBencode(bencodeElement: BencodeElement, kClass: KClass<T>? = null): T =
+        typeAdapters[kClass ?: resolveType(bencodeElement)]?.fromBencode(bencodeElement, this) as T
+
+    private fun resolveType(value: BencodeElement): KClass<*> =
+        when (value) {
+            is BencodeInteger -> Long::class
+            is BencodeByteArray ->
+                if (value.isValidUTF8String) String::class else ByteArray::class
+            is BencodeList -> List::class
+            is BencodeDictionary -> Map::class
+        }
+
 
     private fun decodeElement(stream: ByteArrayInputStream): BencodeElement? =
         when (stream.read()) {
@@ -48,16 +65,16 @@ class DeserializationContext(
 
     private fun decodeDictionary(stream: ByteArrayInputStream): BencodeDictionary {
         val sortedMap = sortedMapOf<String, BencodeElement>()
-        var key = (decodeElement(stream) as? BencodeString)
+        var key = (decodeElement(stream) as? BencodeByteArray)
         while (key != null) {
             val value = decodeElement(stream)!!
-            sortedMap += key.string to value
-            key = (decodeElement(stream) as? BencodeString)
+            sortedMap += key.asString to value
+            key = (decodeElement(stream) as? BencodeByteArray)
         }
         return BencodeDictionary(sortedMap)
     }
 
-    private fun decodeString(stream: ByteArrayInputStream): BencodeString {
+    private fun decodeString(stream: ByteArrayInputStream): BencodeByteArray {
         val lengthByteBuffer = ByteArrayOutputStream()
         var byte = stream.read()
         while (byte != END[0].toInt()) {
@@ -65,9 +82,6 @@ class DeserializationContext(
             byte = stream.read()
         }
         val stringLength = String(lengthByteBuffer.toByteArray()).toInt()
-        return BencodeString(stream.readNBytes(stringLength))
+        return BencodeByteArray(stream.readNBytes(stringLength))
     }
-
-    internal fun fromBencodeByteArray(byteArrayInputStream: ByteArrayInputStream): BencodeElement =
-        fromBencode(byteArrayInputStream)
 }
