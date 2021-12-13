@@ -5,6 +5,7 @@ import kekmech.kben.Kben.Companion.START_DICTIONARY
 import kekmech.kben.Kben.Companion.START_INTEGER
 import kekmech.kben.Kben.Companion.START_LIST
 import kekmech.kben.Kben.Companion.STRING_SEPARATOR
+import kekmech.kben.domain.adapters.AnyTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.dto.BencodeElement.*
 import java.io.ByteArrayOutputStream
@@ -20,13 +21,13 @@ class SerializationContext(
         if (typeAdapter != null) {
             return typeAdapter.toBencode(obj, this)
         }
-        if (obj is Map<*, *>) {
-            return MapTypeAdapter().toBencode(obj, this)
-        }
         if (obj is Iterable<*>) {
             return IterableTypeAdapter().toBencode(obj, this)
         }
-        throw IllegalStateException("TypeAdapter for type ${obj::class} not registered")
+        if (obj is Map<*, *>) {
+            return MapTypeAdapter().toBencode(obj, this)
+        }
+        return AnyTypeAdapter(obj::class as KClass<T>).toBencode(obj, this)
     }
 
     internal fun <T : Any> toBencodeByteArray(obj: T): ByteArray =

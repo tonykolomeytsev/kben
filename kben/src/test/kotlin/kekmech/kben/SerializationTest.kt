@@ -1,5 +1,6 @@
 package kekmech.kben
 
+import kekmech.kben.mocks.BuyResponseMock
 import kekmech.kben.mocks.UserCredentials
 import kekmech.kben.mocks.UserCredentialsTypeAdapter
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -60,14 +61,15 @@ class SerializationTest {
                 password = "world",
             )
 
-        assertThrows<IllegalStateException> {
-            kben.toBencode(credentials)
-        }
+        assertEquals(
+            "d8:password5:world8:username5:helloe",
+            kben.toBencode(credentials).let(::String)
+        )
     }
 
     @Test
     fun `objects to bencode with type adapter`() {
-        val kben = Kben(genericTypeAdapters = mapOf(UserCredentials::class to UserCredentialsTypeAdapter()))
+        val kben = Kben(typeAdapters = mapOf(UserCredentials::class to UserCredentialsTypeAdapter()))
         val credentials =
             UserCredentials(
                 username = "hello",
@@ -105,6 +107,36 @@ class SerializationTest {
                     "username" to "hello",
                 )
             )
+        )
+    }
+
+    @Test
+    fun `structures with objects to bencode`() {
+        val kben = Kben()
+        val buyResponse = BuyResponseMock
+        val buySerialized = """
+            d
+                6:amount    i10e
+                4:coin      d
+                    7:logoUrl   23:http://1.2.3.4/logo.url
+                    4:name      10:EnergoCoin
+                    6:ticker    3:MEC
+                e
+                9:purchases l 
+                    d 
+                        2:id i1e 
+                        3:url 3:abc
+                    e
+                    d
+                        2:id i2e
+                        3:url 3:def
+                    e
+                e
+            e
+        """.trimIndent().filterNot { it.isWhitespace() || it == '\n' }
+        assertEquals(
+            buySerialized,
+            kben.toBencode(buyResponse).let(::String)
         )
     }
 }
