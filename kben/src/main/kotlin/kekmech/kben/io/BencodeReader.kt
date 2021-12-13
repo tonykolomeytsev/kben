@@ -42,9 +42,11 @@ class BencodeReader(
 
     private fun decodeList(stream: ByteArrayInputStream): BencodeElement.BencodeList {
         val elements = mutableListOf<BencodeElement>()
+        last = stream.read()
         var element = decodeElement(stream)
         while (element != null) {
             elements += element
+            last = stream.read()
             element = decodeElement(stream)
         }
         return BencodeElement.BencodeList(elements)
@@ -52,6 +54,7 @@ class BencodeReader(
 
     private fun decodeDictionary(stream: ByteArrayInputStream): BencodeElement.BencodeDictionary {
         val sortedMap = sortedMapOf<String, BencodeElement>()
+        last = stream.read()
         var key = (decodeElement(stream) as? BencodeElement.BencodeByteArray)
         while (key != null) {
             val value = decodeElement(stream)!!

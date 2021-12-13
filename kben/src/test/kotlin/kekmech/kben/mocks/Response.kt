@@ -1,23 +1,23 @@
 package kekmech.kben.mocks
 
-data class BuyResponse(
+internal data class BuyResponse(
     val amount: Long,
     val coin: Coin,
     val purchases: List<Purchase>,
 )
 
-data class Coin(
+internal data class Coin(
     val ticker: String,
     val name: String,
     val logoUrl: String,
 )
 
-data class Purchase(
+internal data class Purchase(
     val id: Int,
     val url: String,
 )
 
-val BuyResponseMock =
+internal val BuyResponseMock =
     BuyResponse(
         amount = 10L,
         coin = Coin(

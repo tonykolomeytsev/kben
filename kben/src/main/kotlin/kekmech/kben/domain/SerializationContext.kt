@@ -13,7 +13,7 @@ class SerializationContext(
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> toBencode(obj: T): BencodeElement {
-        val typeAdapter = (typeAdapters[obj::class] as? TypeAdapter<T>)
+        val typeAdapter = typeAdapters[obj::class] as? TypeAdapter<T>
         if (typeAdapter != null) {
             return typeAdapter.toBencode(obj, this)
         }

@@ -11,7 +11,8 @@ internal class IterableTypeAdapter <T : Any>(
 ) : TypeAdapter<Iterable<T>>() {
 
     override fun fromBencode(value: BencodeElement, context: DeserializationContext): Iterable<T> =
-        (value as BencodeElement.BencodeList).elements.map { context.fromBencode(it, elementsKClass) }
+        (value as BencodeElement.BencodeList).elements
+            .map { context.fromBencode(it, elementsKClass) }
 
     override fun toBencode(value: Iterable<T>, context: SerializationContext): BencodeElement {
         return BencodeElement.BencodeList(value.map { context.toBencode(it) })
