@@ -24,30 +24,7 @@ object StandardTypeAdaptersFactory {
         )
 }
 
-internal class IterableTypeAdapter : TypeAdapter<Iterable<*>>() {
 
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext): Iterable<*> =
-        (value as BencodeElement.BencodeList).elements.map { context.fromBencode<BencodeElement>(it) }
 
-    override fun toBencode(value: Iterable<*>, context: SerializationContext): BencodeElement {
-        return BencodeElement.BencodeList(value.map { context.toBencode(it!!) })
-    }
-}
 
-internal class MapTypeAdapter : TypeAdapter<Map<*, *>>() {
-
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext): Map<*, *> =
-        (value as BencodeElement.BencodeDictionary).entries
-            .mapValues { (_, value) -> context.fromBencode<BencodeElement>(value) }
-            .toSortedMap()
-
-    override fun toBencode(value: Map<*, *>, context: SerializationContext): BencodeElement {
-        return BencodeElement.BencodeDictionary(
-            value
-                .mapKeys { (key, _) -> key as String }
-                .mapValues { (_, value) -> context.toBencode(value!!) }
-                .toSortedMap()
-        )
-    }
-}
 

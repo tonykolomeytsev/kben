@@ -15,15 +15,6 @@ class Kben(
 
     fun <T : Any> fromBencode(inputStream: ByteArrayInputStream, kClass: KClass<T>): T =
         DeserializationContext(typeAdapters).fromBencodeByteArray(inputStream, kClass)
-
-    internal companion object {
-
-        val STRING_SEPARATOR = ":".toByteArray()
-        val START_INTEGER = "i".toByteArray()
-        val START_LIST = "l".toByteArray()
-        val START_DICTIONARY = "d".toByteArray()
-        val END = "e".toByteArray()
-    }
 }
 
 inline fun <reified T : Any> Kben.fromBencode(inputStream: ByteArrayInputStream): T =

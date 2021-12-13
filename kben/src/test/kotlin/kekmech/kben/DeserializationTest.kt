@@ -1,13 +1,17 @@
 package kekmech.kben
 
 import org.junit.jupiter.api.Test
-
-data class MyTestGenericClass(
-    val name: String,
-    val digits: List<Number>,
-)
-
+import kotlin.test.assertEquals
 
 class DeserializationTest {
 
+    @Test
+    fun `bencode string to string`() {
+        val kben = Kben()
+        val bencodeString = "6:Kotlin"
+        assertEquals(
+            kben.fromBencode(bencodeString),
+            "Kotlin"
+        )
+    }
 }

@@ -1,14 +1,10 @@
 package kekmech.kben.domain
 
-import kekmech.kben.Kben.Companion.END
-import kekmech.kben.Kben.Companion.START_DICTIONARY
-import kekmech.kben.Kben.Companion.START_INTEGER
-import kekmech.kben.Kben.Companion.START_LIST
-import kekmech.kben.Kben.Companion.STRING_SEPARATOR
 import kekmech.kben.domain.adapters.AnyTypeAdapter
+import kekmech.kben.domain.adapters.IterableTypeAdapter
+import kekmech.kben.domain.adapters.MapTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.domain.dto.BencodeElement.*
-import java.io.ByteArrayOutputStream
+import kekmech.kben.io.BencodeWriter
 import kotlin.reflect.KClass
 
 class SerializationContext(
@@ -22,46 +18,14 @@ class SerializationContext(
             return typeAdapter.toBencode(obj, this)
         }
         if (obj is Iterable<*>) {
-            return IterableTypeAdapter().toBencode(obj, this)
+            return IterableTypeAdapter(obj::class as KClass<T>).toBencode(obj as Iterable<T>, this)
         }
         if (obj is Map<*, *>) {
-            return MapTypeAdapter().toBencode(obj, this)
+            return MapTypeAdapter(obj::class as KClass<T>).toBencode(obj as Map<String, T>, this)
         }
         return AnyTypeAdapter(obj::class as KClass<T>).toBencode(obj, this)
     }
 
     internal fun <T : Any> toBencodeByteArray(obj: T): ByteArray =
-        ByteArrayOutputStream()
-            .apply { toBencode(obj).writeTo(this) }
-            .toByteArray()
-
-    private fun BencodeElement.writeTo(buffer: ByteArrayOutputStream) {
-        when (this) {
-            is BencodeByteArray -> buffer.apply {
-                write(content.size.toString().toByteArray())
-                write(STRING_SEPARATOR)
-                write(content)
-            }
-            is BencodeInteger -> buffer.apply {
-                write(START_INTEGER)
-                write(integer.toString().toByteArray())
-                write(END)
-            }
-            is BencodeList -> buffer.apply {
-                write(START_LIST)
-                elements.forEach { element ->
-                    element.writeTo(buffer)
-                }
-                write(END)
-            }
-            is BencodeDictionary -> buffer.apply {
-                write(START_DICTIONARY)
-                entries.forEach { (key, value) ->
-                    BencodeByteArray(key.toByteArray()).writeTo(buffer)
-                    value.writeTo(buffer)
-                }
-                write(END)
-            }
-        }
-    }
+        BencodeWriter().write(toBencode(obj))
 }
