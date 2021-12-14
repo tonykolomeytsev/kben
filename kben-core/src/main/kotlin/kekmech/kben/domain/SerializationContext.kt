@@ -27,5 +27,7 @@ class SerializationContext(
     }
 
     internal fun <T : Any> toBencodeByteArray(obj: T): ByteArray =
-        BencodeWriter().write(toBencode(obj))
+        BencodeWriter()
+            .apply { write(toBencode(obj)) }
+            .toByteArray()
 }

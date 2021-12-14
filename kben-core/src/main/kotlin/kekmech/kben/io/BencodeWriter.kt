@@ -12,7 +12,7 @@ class BencodeWriter {
 
     private val buffer = ByteArrayOutputStream()
 
-    fun write(element: BencodeElement): ByteArray {
+    fun write(element: BencodeElement) {
         when (element) {
             is BencodeElement.BencodeByteArray -> buffer.apply {
                 write(element.content.size.toString().toByteArray())
@@ -40,6 +40,7 @@ class BencodeWriter {
                 write(END)
             }
         }
-        return buffer.toByteArray()
     }
+
+    fun toByteArray(): ByteArray = buffer.toByteArray()
 }
