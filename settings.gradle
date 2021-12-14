@@ -1,4 +1,4 @@
 rootProject.name = 'kben'
 
-include(":kben")
-include(":kben-retrofit-converter")
+include(":kben-core")
+// include(":kben-retrofit-converter")
