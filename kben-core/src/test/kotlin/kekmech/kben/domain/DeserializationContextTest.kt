@@ -1,0 +1,3 @@
+package kekmech.kben.domain
+
+internal class DeserializationContextTest

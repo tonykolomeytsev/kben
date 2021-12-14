@@ -9,12 +9,14 @@ internal object Mocks {
 
     object IntegerPrimitives {
 
+        val LIST = integers
         val IR = integers.map(::BencodeInteger)
         val RAW = integers.map { "i${it}e" }
     }
 
     object StringPrimitives {
 
+        val LIST = strings
         val IR = strings.map(::BencodeByteArray)
         val RAW = strings.map { "${it.length}:$it" }
     }
@@ -33,16 +35,16 @@ internal object Mocks {
 
     object DictionaryWithIntegers {
 
-        private val dictionary = strings.zip(integers).toMap().toSortedMap()
-        val IR = BencodeDictionary(dictionary.mapValues { BencodeInteger(it.value) }.toSortedMap())
-        val RAW = dictionary.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
+        val DICTIONARY = strings.zip(integers).toMap().toSortedMap()
+        val IR = BencodeDictionary(DICTIONARY.mapValues { BencodeInteger(it.value) }.toSortedMap())
+        val RAW = DICTIONARY.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
     }
 
     object DictionaryWithStrings {
 
-        private val  dictionary = strings.zip(integers.map { it.toString() }).toMap().toSortedMap()
-        val IR = BencodeDictionary(dictionary.mapValues { BencodeByteArray(it.value) }.toSortedMap())
-        val RAW = dictionary.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
+        val DICTIONARY = strings.zip(integers.map { it.toString() }).toMap().toSortedMap()
+        val IR = BencodeDictionary(DICTIONARY.mapValues { BencodeByteArray(it.value) }.toSortedMap())
+        val RAW = DICTIONARY.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
     }
 
     private fun String.compress() = filterNot { it.isWhitespace() || it == '\n' }

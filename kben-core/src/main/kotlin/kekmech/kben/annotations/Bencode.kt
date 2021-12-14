@@ -1,4 +1,4 @@
-package kekmech.kben.domain.reflect
+package kekmech.kben.annotations
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.PROPERTY)

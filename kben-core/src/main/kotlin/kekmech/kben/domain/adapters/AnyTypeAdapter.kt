@@ -1,11 +1,11 @@
 package kekmech.kben.domain.adapters
 
 import kekmech.kben.TypeHolder
+import kekmech.kben.annotations.Bencode
 import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.domain.reflect.Bencode
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty

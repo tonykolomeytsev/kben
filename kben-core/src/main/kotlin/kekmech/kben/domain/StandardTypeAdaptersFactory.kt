@@ -4,7 +4,7 @@ import kekmech.kben.domain.adapters.*
 import kekmech.kben.domain.dto.BencodeElement
 import kotlin.reflect.KClass
 
-object StandardTypeAdaptersFactory {
+internal object StandardTypeAdaptersFactory {
 
     fun createTypeAdapters(): Map<KClass<*>, TypeAdapter<*>> =
         linkedMapOf(

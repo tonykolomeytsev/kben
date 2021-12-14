@@ -5,7 +5,7 @@ import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class BencodeWriterTest {
+internal class BencodeWriterTest {
 
     @Test
     fun `write strings`() {
