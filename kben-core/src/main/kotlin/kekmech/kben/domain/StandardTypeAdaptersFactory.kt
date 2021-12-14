@@ -1,11 +1,6 @@
 package kekmech.kben.domain
 
 import kekmech.kben.domain.adapters.*
-import kekmech.kben.domain.adapters.BencodeIntegerTypeAdapter
-import kekmech.kben.domain.adapters.ByteArrayTypeAdapter
-import kekmech.kben.domain.adapters.IntTypeAdapter
-import kekmech.kben.domain.adapters.LongTypeAdapter
-import kekmech.kben.domain.adapters.StringTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import kotlin.reflect.KClass
 
@@ -21,6 +16,7 @@ object StandardTypeAdaptersFactory {
             BencodeElement.BencodeByteArray::class to BencodeByteArrayTypeAdapter(),
             BencodeElement.BencodeList::class to BencodeListTypeAdapter(),
             BencodeElement.BencodeDictionary::class to BencodeDictionaryTypeAdapter(),
+            BencodeElement::class to BencodeElementTypeAdapter(),
         )
 }
 

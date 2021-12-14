@@ -8,7 +8,11 @@ import kekmech.kben.domain.dto.BencodeElement
 
 internal class BencodeListTypeAdapter : TypeAdapter<BencodeElement.BencodeList>() {
 
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): BencodeElement.BencodeList {
+    override fun fromBencode(
+        value: BencodeElement,
+        context: DeserializationContext,
+        typeHolder: TypeHolder
+    ): BencodeElement.BencodeList {
         return value as BencodeElement.BencodeList
     }
 

@@ -63,4 +63,19 @@ class DeserializationContextTest {
             .let { kben.fromBencode<User>(it) }
         assertEquals(userSource, userNew)
     }
+
+    data class PurchaseDetails(
+        val ids: Set<String>,
+        val status: String,
+    )
+
+    @Test
+    fun `runtime test 2`() {
+        val kben = Kben()
+        val details = PurchaseDetails(setOf("1", "2"), "SUCCESS")
+        val detailsNew = kben.toBencode(details)
+            .toString(Charset.defaultCharset())
+            .let { kben.fromBencode<PurchaseDetails>(it) }
+        assertEquals(details, detailsNew)
+    }
 }

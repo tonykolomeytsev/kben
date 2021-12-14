@@ -5,7 +5,6 @@ import kekmech.kben.domain.adapters.AnyTypeAdapter
 import kekmech.kben.domain.adapters.IterableTypeAdapter
 import kekmech.kben.domain.adapters.MapTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.io.BencodeReader
 import java.io.ByteArrayInputStream
 import kotlin.reflect.KClass
@@ -45,15 +44,6 @@ class DeserializationContext(
         }
         return ret as T
     }
-
-    private fun resolveType(value: BencodeElement): KClass<*> =
-        when (value) {
-            is BencodeInteger -> Long::class
-            is BencodeByteArray ->
-                if (value.isValidUTF8String) String::class else ByteArray::class
-            is BencodeList -> Iterable::class
-            is BencodeDictionary -> Map::class
-        }
 
     private fun decodeElement(stream: ByteArrayInputStream): BencodeElement? = BencodeReader(stream).read()
 }

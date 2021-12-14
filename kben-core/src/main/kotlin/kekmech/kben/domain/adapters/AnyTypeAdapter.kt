@@ -13,7 +13,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 
-class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
+internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
     override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): T {
         val dict = (value as BencodeElement.BencodeDictionary).entries
@@ -28,7 +28,10 @@ class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
                     typeHolder = TypeHolder.from(parameter)
                 )
             }
-            .let { typeHolder.type.primaryConstructor!!.callBy(it) as T }
+            .let {
+                @Suppress("UNCHECKED_CAST")
+                typeHolder.type.primaryConstructor!!.callBy(it) as T
+            }
     }
 
     override fun toBencode(value: T, context: SerializationContext): BencodeElement {

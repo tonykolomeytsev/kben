@@ -8,7 +8,11 @@ import kekmech.kben.domain.dto.BencodeElement
 
 internal class ByteArrayTypeAdapter : TypeAdapter<ByteArray>() {
 
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): ByteArray {
+    override fun fromBencode(
+        value: BencodeElement,
+        context: DeserializationContext,
+        typeHolder: TypeHolder
+    ): ByteArray {
         return (value as BencodeElement.BencodeByteArray).content
     }
 

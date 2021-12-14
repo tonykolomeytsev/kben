@@ -5,14 +5,20 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kotlin.reflect.KClass
 
 internal class MapTypeAdapter<T : Any> : TypeAdapter<Map<String, T>>() {
 
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): Map<String, T> =
-        TODO("Not implemented")
-//        (value as BencodeElement.BencodeDictionary).entries
-//            .mapValues { (_, value) -> context.fromBencode(value, valuesKClass) }
+    override fun fromBencode(
+        value: BencodeElement,
+        context: DeserializationContext,
+        typeHolder: TypeHolder
+    ): Map<String, T> =
+        (value as BencodeElement.BencodeDictionary).entries.mapValues { (_, bencodeElement) ->
+            context.fromBencode(
+                bencodeElement = bencodeElement,
+                typeHolder = (typeHolder as TypeHolder.Parameterized).parameterTypes.last()
+            )
+        }
 
     override fun toBencode(value: Map<String, T>, context: SerializationContext): BencodeElement {
         return BencodeElement.BencodeDictionary(

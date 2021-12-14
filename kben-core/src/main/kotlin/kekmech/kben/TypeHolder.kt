@@ -26,16 +26,16 @@ sealed class TypeHolder {
         fun ofBencodeList(valueKClass: KClass<*>): TypeHolder =
             Parameterized(
                 type = Iterable::class,
-                parameterTypes = listOf(Simple(valueKClass))
+                parameterTypes = listOf(Simple(valueKClass)),
             )
 
         fun ofBencodeDictionary(valueKClass: KClass<*>): TypeHolder =
             Parameterized(
                 type = Map::class,
-                parameterTypes = listOf(Simple(String::class), Simple(valueKClass))
+                parameterTypes = listOf(Simple(String::class), Simple(valueKClass)),
             )
 
-        fun from(parameter: KParameter): TypeHolder {
+        internal fun from(parameter: KParameter): TypeHolder {
             val type = parameter.type.javaType
             return type.parameterTypes()
         }
