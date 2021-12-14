@@ -57,8 +57,10 @@ class BencodeReader(
         last = stream.read()
         var key = (decodeElement(stream) as? BencodeElement.BencodeByteArray)
         while (key != null) {
+            last = stream.read()
             val value = decodeElement(stream)!!
             sortedMap += key.asString to value
+            last = stream.read()
             key = (decodeElement(stream) as? BencodeElement.BencodeByteArray)
         }
         return BencodeElement.BencodeDictionary(sortedMap)

@@ -22,4 +22,12 @@ class BencodeReaderTest {
             BencodeReader("l1:a2:ab3:abce".toByteArray().inputStream()).read(),
         )
     }
+
+    @Test
+    fun `test 3`() {
+        assertEquals(
+            BencodeElement.BencodeDictionary(sortedMapOf("hello" to BencodeElement.BencodeByteArray("world"))),
+            BencodeReader("d5:hello5:worlde".byteInputStream()).read()
+        )
+    }
 }

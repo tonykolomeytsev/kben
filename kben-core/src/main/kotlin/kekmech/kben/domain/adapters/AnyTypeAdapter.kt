@@ -6,31 +6,34 @@ import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.reflect.Bencode
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.javaType
 
-class AnyTypeAdapter<T : Any>: TypeAdapter<T>() {
+class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
     override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): T {
         val dict = (value as BencodeElement.BencodeDictionary).entries
-        return when (typeHolder) {
-            is TypeHolder.Simple -> typeHolder
-                .type
-                .primaryConstructorParameters
-                .associateWith { parameter ->
-                    val name = parameter.annotatedName
-                    // parameter value
-                    context.fromBencode<Any>(dict[name]!!, TypeHolder.from(parameter))
-                }
-                .let { typeHolder.type.primaryConstructor!!.callBy(it) as T }
-            is TypeHolder.Parameterized -> TODO("Not implemented")
-        }
+        return typeHolder
+            .type
+            .primaryConstructorParameters
+            .associateWith { parameter ->
+                val name = parameter.annotatedName
+                // parameter value
+                context.fromBencode<Any>(
+                    bencodeElement = dict[name]!!,
+                    typeHolder = TypeHolder.from(parameter)
+                )
+            }
+            .let { typeHolder.type.primaryConstructor!!.callBy(it) as T }
     }
 
     override fun toBencode(value: T, context: SerializationContext): BencodeElement {
         val dictionary = sortedMapOf<String, BencodeElement>()
+        @Suppress("UNCHECKED_CAST")
         value::class.primaryConstructorParameters.forEach { parameter ->
             val name = parameter.annotatedName
             val parameterCorrespondingProperty =
@@ -49,6 +52,14 @@ class AnyTypeAdapter<T : Any>: TypeAdapter<T>() {
         get() =
             (annotations.firstOrNull { it is Bencode } as? Bencode)?.name ?: name
 
-    private val KClass<*>.primaryConstructorParameters get() =
-        primaryConstructor!!.parameters
+    private val KClass<*>.primaryConstructorParameters
+        get() =
+            primaryConstructor!!.parameters
+
+    private val TypeHolder.type
+        get() =
+            when (this) {
+                is TypeHolder.Simple -> type
+                is TypeHolder.Parameterized -> type
+            }
 }
