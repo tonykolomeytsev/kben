@@ -20,7 +20,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import kotlin.test.assertEquals
 
-
 internal class KbenConverterFactoryTest {
 
     data class SomeDataClass(val name: String?)
