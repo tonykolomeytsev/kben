@@ -47,6 +47,20 @@ internal object Mocks {
         val RAW = DICTIONARY.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
     }
 
+    object SetOfIntegers {
+
+        val SET = integers.toSet()
+        val IR = ListOfIntegers.IR
+        val RAW = ListOfIntegers.RAW
+    }
+
+    object SetOfStrings {
+
+        val SET = strings.toSet()
+        val IR = ListOfStrings.IR
+        val RAW = ListOfStrings.RAW
+    }
+
     private fun String.compress() = filterNot { it.isWhitespace() || it == '\n' }
 
     private fun String.toBencode(): String = "${length}:$this"

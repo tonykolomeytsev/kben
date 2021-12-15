@@ -23,16 +23,22 @@ sealed class TypeHolder {
 
     companion object {
 
-        fun ofBencodeList(valueKClass: KClass<*>): TypeHolder =
+        fun ofList(valueKClass: KClass<*>): TypeHolder =
             Parameterized(
                 type = Iterable::class,
                 parameterTypes = listOf(Simple(valueKClass)),
             )
 
-        fun ofBencodeDictionary(valueKClass: KClass<*>): TypeHolder =
+        fun ofMap(valueKClass: KClass<*>): TypeHolder =
             Parameterized(
                 type = Map::class,
                 parameterTypes = listOf(Simple(String::class), Simple(valueKClass)),
+            )
+
+        fun ofSet(valueKClass: KClass<*>): TypeHolder =
+            Parameterized(
+                type = Set::class,
+                parameterTypes = listOf(Simple(valueKClass))
             )
 
         internal fun from(parameter: KParameter): TypeHolder {

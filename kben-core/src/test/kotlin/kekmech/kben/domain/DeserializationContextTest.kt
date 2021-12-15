@@ -36,7 +36,7 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.IntegerPrimitives.LIST,
-            context.fromBencode(Mocks.ListOfIntegers.IR, TypeHolder.ofBencodeList(Long::class))
+            context.fromBencode(Mocks.ListOfIntegers.IR, TypeHolder.ofList(Long::class))
         )
     }
 
@@ -45,7 +45,7 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.StringPrimitives.LIST,
-            context.fromBencode(Mocks.ListOfStrings.IR, TypeHolder.ofBencodeList(String::class))
+            context.fromBencode(Mocks.ListOfStrings.IR, TypeHolder.ofList(String::class))
         )
     }
 
@@ -54,7 +54,7 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             emptyList<String>(),
-            context.fromBencode(BencodeList(emptyList()), TypeHolder.ofBencodeList(String::class))
+            context.fromBencode(BencodeList(emptyList()), TypeHolder.ofList(String::class))
         )
     }
 
@@ -63,7 +63,7 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.DictionaryWithIntegers.DICTIONARY,
-            context.fromBencode(Mocks.DictionaryWithIntegers.IR, TypeHolder.ofBencodeDictionary(Long::class))
+            context.fromBencode(Mocks.DictionaryWithIntegers.IR, TypeHolder.ofMap(Long::class))
         )
     }
 
@@ -72,7 +72,7 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.DictionaryWithStrings.DICTIONARY,
-            context.fromBencode(Mocks.DictionaryWithStrings.IR, TypeHolder.ofBencodeDictionary(String::class))
+            context.fromBencode(Mocks.DictionaryWithStrings.IR, TypeHolder.ofMap(String::class))
         )
     }
 
@@ -81,7 +81,25 @@ internal class DeserializationContextTest {
         val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             mapOf<String, String>(),
-            context.fromBencode(BencodeDictionary(sortedMapOf()), TypeHolder.ofBencodeDictionary(String::class))
+            context.fromBencode(BencodeDictionary(sortedMapOf()), TypeHolder.ofMap(String::class))
+        )
+    }
+
+    @Test
+    fun `deserialize set of integers`() {
+        val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
+        assertEquals(
+            Mocks.SetOfIntegers.SET,
+            context.fromBencode(Mocks.SetOfIntegers.IR, TypeHolder.ofSet(Long::class))
+        )
+    }
+
+    @Test
+    fun `deserialize set of strings`() {
+        val context = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
+        assertEquals(
+            Mocks.SetOfStrings.SET,
+            context.fromBencode(Mocks.SetOfStrings.IR, TypeHolder.ofSet(String::class))
         )
     }
 }

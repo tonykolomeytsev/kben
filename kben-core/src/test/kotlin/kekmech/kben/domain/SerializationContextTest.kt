@@ -83,4 +83,22 @@ internal class SerializationContextTest {
             context.toBencode(mapOf<String, String>())
         )
     }
+
+    @Test
+    fun `serialize set of integers`() {
+        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
+        assertEquals(
+            Mocks.SetOfIntegers.IR,
+            context.toBencode(Mocks.SetOfIntegers.SET)
+        )
+    }
+
+    @Test
+    fun `serialize set of strings`() {
+        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
+        assertEquals(
+            Mocks.SetOfStrings.IR,
+            context.toBencode(Mocks.SetOfStrings.SET)
+        )
+    }
 }
