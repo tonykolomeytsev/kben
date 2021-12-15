@@ -59,3 +59,7 @@ kben.fromBencode<User>(
     "d4:name4John8:password8:p@55w0rDe") // User("John", "p@55w0rD")
 ```
 
+### What has not been completed yet? 
+
+- Error handling.
+- Support deserialization for objects of classes with `Any` parameter types.
