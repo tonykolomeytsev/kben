@@ -41,6 +41,8 @@ sealed class TypeHolder {
                 parameterTypes = listOf(Simple(valueKClass))
             )
 
+        fun from(type: Type): TypeHolder = type.parameterTypes()
+
         internal fun from(parameter: KParameter): TypeHolder {
             val type = parameter.type.javaType
             return type.parameterTypes()
