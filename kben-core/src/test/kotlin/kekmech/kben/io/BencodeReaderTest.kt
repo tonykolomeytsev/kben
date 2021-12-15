@@ -1,7 +1,7 @@
 package kekmech.kben.io
 
-import kekmech.kben.domain.dto.BencodeElement.BencodeDictionary
-import kekmech.kben.domain.dto.BencodeElement.BencodeList
+import kekmech.kben.domain.dto.BencodeElement
+import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -16,6 +16,14 @@ internal class BencodeReaderTest {
                 BencodeReader(rawString.byteInputStream()).read()
             )
         }
+    }
+
+    @Test
+    fun `read empty string`() {
+        assertEquals(
+            BencodeByteArray(""),
+            BencodeReader("0:".byteInputStream()).read()
+        )
     }
 
     @Test

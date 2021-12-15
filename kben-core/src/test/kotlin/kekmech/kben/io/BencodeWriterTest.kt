@@ -1,6 +1,7 @@
 package kekmech.kben.io
 
 import kekmech.kben.domain.dto.BencodeElement
+import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -15,6 +16,14 @@ internal class BencodeWriterTest {
                 BencodeWriter().apply { write(irString) }.toByteArray().let(::String)
             )
         }
+    }
+
+    @Test
+    fun `write empty string`() {
+        assertEquals(
+            "0:",
+            BencodeWriter().apply { write(BencodeByteArray("")) }.toByteArray().let(::String)
+        )
     }
 
     @Test
@@ -47,7 +56,7 @@ internal class BencodeWriterTest {
     fun `write empty list`() {
         assertEquals(
             "le",
-            BencodeWriter().apply { write(BencodeElement.BencodeList(emptyList())) }.toByteArray().let(::String)
+            BencodeWriter().apply { write(BencodeList(emptyList())) }.toByteArray().let(::String)
         )
     }
 
@@ -71,7 +80,7 @@ internal class BencodeWriterTest {
     fun `write empty dictionary`() {
         assertEquals(
             "de",
-            BencodeWriter().apply { write(BencodeElement.BencodeDictionary(sortedMapOf())) }.toByteArray().let(::String)
+            BencodeWriter().apply { write(BencodeDictionary(sortedMapOf())) }.toByteArray().let(::String)
         )
     }
 }
