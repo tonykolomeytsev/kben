@@ -8,12 +8,13 @@ import kekmech.kben.io.BencodeWriter
 import kotlin.reflect.KClass
 
 class SerializationContext(
-    private val typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
-) {
+    standardTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
+    customTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
+) : AbstractContext(standardTypeAdapters, customTypeAdapters) {
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> toBencode(obj: T): BencodeElement {
-        val typeAdapter = typeAdapters[obj::class] as? TypeAdapter<T>
+        val typeAdapter = findTypeAdapterFor(obj::class as KClass<T>)
         if (typeAdapter != null) {
             return typeAdapter.toBencode(obj, this)
         }

@@ -1,6 +1,9 @@
 package kekmech.kben
 
-import kekmech.kben.domain.*
+import kekmech.kben.domain.DeserializationContext
+import kekmech.kben.domain.SerializationContext
+import kekmech.kben.domain.StandardTypeAdaptersFactory
+import kekmech.kben.domain.TypeAdapter
 import java.io.ByteArrayInputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -9,13 +12,14 @@ class Kben(
     typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>> = mapOf(),
 ) {
 
-    private val typeAdapters = StandardTypeAdaptersFactory.createTypeAdapters() + typeAdapters
+    private val standardTypeAdapters = StandardTypeAdaptersFactory.createTypeAdapters()
+    private val customTypeAdapters = typeAdapters
 
     fun <T : Any> toBencode(obj: T): ByteArray =
-        SerializationContext(typeAdapters).toBencodeByteArray(obj)
+        SerializationContext(standardTypeAdapters, customTypeAdapters).toBencodeByteArray(obj)
 
     fun <T : Any> fromBencode(inputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
-        DeserializationContext(typeAdapters).fromBencodeByteArray(inputStream, typeHolder)
+        DeserializationContext(standardTypeAdapters, customTypeAdapters).fromBencodeByteArray(inputStream, typeHolder)
 }
 
 inline fun <reified T : Any> Kben.fromBencode(inputStream: ByteArrayInputStream): T =

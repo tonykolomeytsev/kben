@@ -8,9 +8,10 @@ import kotlin.test.assertEquals
 
 internal class SerializationContextTest {
 
+    private val context get() = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters(), emptyMap())
+
     @Test
     fun `serialize integers`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         Mocks.IntegerPrimitives.LIST.zip(Mocks.IntegerPrimitives.IR).forEach { (integer, irInteger) ->
             assertEquals(
                 irInteger,
@@ -21,7 +22,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize strings`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         Mocks.StringPrimitives.LIST.zip(Mocks.StringPrimitives.IR).forEach { (string, irString) ->
             assertEquals(
                 irString,
@@ -32,7 +32,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize list of integers`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.ListOfIntegers.IR,
             context.toBencode(Mocks.IntegerPrimitives.LIST)
@@ -41,7 +40,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize list of strings`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.ListOfStrings.IR,
             context.toBencode(Mocks.StringPrimitives.LIST)
@@ -50,7 +48,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize empty list`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             BencodeList(emptyList()),
             context.toBencode(emptyList<Any>())
@@ -59,7 +56,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize dictionary with integer values`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.DictionaryWithIntegers.IR,
             context.toBencode(Mocks.DictionaryWithIntegers.DICTIONARY)
@@ -68,7 +64,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize dictionary with string values`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.DictionaryWithStrings.IR,
             context.toBencode(Mocks.DictionaryWithStrings.DICTIONARY)
@@ -77,7 +72,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize empty dictionary`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             BencodeDictionary(sortedMapOf()),
             context.toBencode(mapOf<String, String>())
@@ -86,7 +80,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize set of integers`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.SetOfIntegers.IR,
             context.toBencode(Mocks.SetOfIntegers.SET)
@@ -95,7 +88,6 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize set of strings`() {
-        val context = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters())
         assertEquals(
             Mocks.SetOfStrings.IR,
             context.toBencode(Mocks.SetOfStrings.SET)

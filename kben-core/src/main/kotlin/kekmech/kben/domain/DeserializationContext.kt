@@ -11,25 +11,25 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 class DeserializationContext(
-    private val typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
-) {
+    standardTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
+    customTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
+) : AbstractContext(standardTypeAdapters, customTypeAdapters) {
 
     fun <T : Any> fromBencodeByteArray(byteArrayInputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
         byteArrayInputStream
-            .use { decodeElement(it) ?: error("Broken Bencode schema") }
+            .use { decodeElement(it) ?: error("Broken bencode") }
             .let { fromBencode(it, typeHolder) }
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T : Any> fromBencode(bencodeElement: BencodeElement, typeHolder: TypeHolder): T {
         val ret: Any = when (typeHolder) {
             is TypeHolder.Simple -> {
-                val typeAdapter = typeAdapters[typeHolder.type] as? TypeAdapter<T>
-                typeAdapter
+                findTypeAdapterFor<T>(typeHolder)
                     ?.fromBencode(bencodeElement, this, typeHolder)
                     ?: AnyTypeAdapter<T>().fromBencode(bencodeElement, this, typeHolder)
             }
             is TypeHolder.Parameterized -> {
-                val typeAdapter = typeAdapters[typeHolder.type] as? TypeAdapter<T>
+                val typeAdapter = findTypeAdapterFor<T>(typeHolder)
                 when {
                     typeAdapter != null ->
                         typeAdapter.fromBencode(bencodeElement, this, typeHolder)
