@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    testImplementation(kotlin("test"))
+    implementation(kotlin("reflect"))
 }
