@@ -1,4 +1,4 @@
-name: Android Debug Build
+name: Test and Build
 
 on:
   pull_request:
@@ -68,6 +68,4 @@ jobs:
             ${{ runner.OS }}-build-
 
       - name: Build with Gradle
-        run: ./gradlew -Pci assembleDebug
-        env:
-          MAP_KEY: ${{ secrets.MAP_KEY }}
+        run: ./gradlew -Pci assemble
