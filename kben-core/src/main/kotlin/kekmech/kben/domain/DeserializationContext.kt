@@ -5,7 +5,7 @@ import kekmech.kben.domain.adapters.AnyTypeAdapter
 import kekmech.kben.domain.adapters.IterableTypeAdapter
 import kekmech.kben.domain.adapters.MapTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.io.BencodeReader
+import kekmech.kben.io.BencodeInputStream
 import java.io.ByteArrayInputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -17,7 +17,7 @@ class DeserializationContext(
 
     fun <T : Any> fromBencodeByteArray(byteArrayInputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
         byteArrayInputStream
-            .use { decodeElement(it) ?: error("Broken bencode") }
+            .use { decodeElement(it) }
             .let { fromBencode(it, typeHolder) }
 
     @Suppress("UNCHECKED_CAST")
@@ -45,5 +45,6 @@ class DeserializationContext(
         return ret as T
     }
 
-    private fun decodeElement(stream: ByteArrayInputStream): BencodeElement? = BencodeReader(stream).read()
+    private fun decodeElement(stream: ByteArrayInputStream): BencodeElement =
+        BencodeInputStream(stream).readBencodeElement()
 }

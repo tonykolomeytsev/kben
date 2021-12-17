@@ -6,7 +6,7 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.domain.dto.BencodeElement.BencodeByteArray
+import kekmech.kben.domain.dto.BencodeElement.BencodeByteString
 import kekmech.kben.domain.dto.BencodeElement.BencodeDictionary
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -28,7 +28,7 @@ internal class KbenConverterFactoryTest {
 
         override fun toBencode(value: SomeDataClass, context: SerializationContext): BencodeElement {
             return BencodeDictionary(
-                listOfNotNull(value.name?.let { "name" to BencodeByteArray(it) }).toMap().toSortedMap()
+                listOfNotNull(value.name?.let { "name" to BencodeByteString(it) }).toMap().toSortedMap()
             )
         }
 
@@ -38,7 +38,7 @@ internal class KbenConverterFactoryTest {
             typeHolder: TypeHolder
         ): SomeDataClass {
             return SomeDataClass(
-                name = ((value as BencodeDictionary).entries["name"] as? BencodeByteArray)?.asString
+                name = ((value as BencodeDictionary).entries["name"] as? BencodeByteString)?.asString
             )
         }
     }

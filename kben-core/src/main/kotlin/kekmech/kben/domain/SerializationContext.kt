@@ -4,7 +4,8 @@ import kekmech.kben.domain.adapters.AnyTypeAdapter
 import kekmech.kben.domain.adapters.IterableTypeAdapter
 import kekmech.kben.domain.adapters.MapTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kekmech.kben.io.BencodeWriter
+import kekmech.kben.io.BencodeOutputStream
+import java.io.ByteArrayOutputStream
 import kotlin.reflect.KClass
 
 class SerializationContext(
@@ -28,7 +29,7 @@ class SerializationContext(
     }
 
     internal fun <T : Any> toBencodeByteArray(obj: T): ByteArray =
-        BencodeWriter()
-            .apply { write(toBencode(obj)) }
+        ByteArrayOutputStream()
+            .apply { BencodeOutputStream(this).write(toBencode(obj)) }
             .toByteArray()
 }

@@ -6,17 +6,17 @@ import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 
-internal class BencodeByteArrayTypeAdapter : TypeAdapter<BencodeElement.BencodeByteArray>() {
+internal class BencodeByteStringTypeAdapter : TypeAdapter<BencodeElement.BencodeByteString>() {
 
     override fun fromBencode(
         value: BencodeElement,
         context: DeserializationContext,
         typeHolder: TypeHolder
-    ): BencodeElement.BencodeByteArray {
-        return value as BencodeElement.BencodeByteArray
+    ): BencodeElement.BencodeByteString {
+        return value as BencodeElement.BencodeByteString
     }
 
-    override fun toBencode(value: BencodeElement.BencodeByteArray, context: SerializationContext): BencodeElement {
+    override fun toBencode(value: BencodeElement.BencodeByteString, context: SerializationContext): BencodeElement {
         return value
     }
 }

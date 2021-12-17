@@ -13,10 +13,10 @@ internal class ByteArrayTypeAdapter : TypeAdapter<ByteArray>() {
         context: DeserializationContext,
         typeHolder: TypeHolder
     ): ByteArray {
-        return (value as BencodeElement.BencodeByteArray).content
+        return (value as BencodeElement.BencodeByteString).bytes
     }
 
     override fun toBencode(value: ByteArray, context: SerializationContext): BencodeElement {
-        return BencodeElement.BencodeByteArray(value)
+        return BencodeElement.BencodeByteString(value)
     }
 }

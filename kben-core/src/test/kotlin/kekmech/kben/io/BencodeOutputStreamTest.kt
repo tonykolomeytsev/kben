@@ -4,16 +4,23 @@ import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayOutputStream
 import kotlin.test.assertEquals
 
-internal class BencodeWriterTest {
+internal class BencodeOutputStreamTest {
+
+    private fun write(bencodeElement: BencodeElement): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        BencodeOutputStream(byteArrayOutputStream).write(bencodeElement)
+        return byteArrayOutputStream.toByteArray().let(::String)
+    }
 
     @Test
     fun `write strings`() {
         Mocks.StringPrimitives.RAW.zip(Mocks.StringPrimitives.IR).forEach { (rawString, irString) ->
             assertEquals(
                 rawString,
-                BencodeWriter().apply { write(irString) }.toByteArray().let(::String)
+                write(irString)
             )
         }
     }
@@ -22,7 +29,7 @@ internal class BencodeWriterTest {
     fun `write empty string`() {
         assertEquals(
             "0:",
-            BencodeWriter().apply { write(BencodeByteArray("")) }.toByteArray().let(::String)
+            write(BencodeByteString(""))
         )
     }
 
@@ -31,7 +38,7 @@ internal class BencodeWriterTest {
         Mocks.IntegerPrimitives.RAW.zip(Mocks.IntegerPrimitives.IR).forEach { (rawInteger, irInteger) ->
             assertEquals(
                 rawInteger,
-                BencodeWriter().apply { write(irInteger) }.toByteArray().let(::String)
+                write(irInteger)
             )
         }
     }
@@ -40,7 +47,7 @@ internal class BencodeWriterTest {
     fun `write list of strings`() {
         assertEquals(
             Mocks.ListOfStrings.RAW,
-            BencodeWriter().apply { write(Mocks.ListOfStrings.IR) }.toByteArray().let(::String)
+            write(Mocks.ListOfStrings.IR)
         )
     }
 
@@ -48,7 +55,7 @@ internal class BencodeWriterTest {
     fun `write list of integers`() {
         assertEquals(
             Mocks.ListOfIntegers.RAW,
-            BencodeWriter().apply { write(Mocks.ListOfIntegers.IR) }.toByteArray().let(::String)
+            write(Mocks.ListOfIntegers.IR)
         )
     }
 
@@ -56,7 +63,7 @@ internal class BencodeWriterTest {
     fun `write empty list`() {
         assertEquals(
             "le",
-            BencodeWriter().apply { write(BencodeList(emptyList())) }.toByteArray().let(::String)
+            write(BencodeList(emptyList()))
         )
     }
 
@@ -64,7 +71,7 @@ internal class BencodeWriterTest {
     fun `write dictionary with integer values`() {
         assertEquals(
             Mocks.DictionaryWithIntegers.RAW,
-            BencodeWriter().apply { write(Mocks.DictionaryWithIntegers.IR) }.toByteArray().let(::String)
+            write(Mocks.DictionaryWithIntegers.IR)
         )
     }
 
@@ -72,7 +79,7 @@ internal class BencodeWriterTest {
     fun `write dictionary with string values`() {
         assertEquals(
             Mocks.DictionaryWithStrings.RAW,
-            BencodeWriter().apply { write(Mocks.DictionaryWithStrings.IR) }.toByteArray().let(::String)
+            write(Mocks.DictionaryWithStrings.IR)
         )
     }
 
@@ -80,7 +87,7 @@ internal class BencodeWriterTest {
     fun `write empty dictionary`() {
         assertEquals(
             "de",
-            BencodeWriter().apply { write(BencodeDictionary(sortedMapOf())) }.toByteArray().let(::String)
+            write(BencodeDictionary(sortedMapOf()))
         )
     }
 }

@@ -1,19 +1,18 @@
 package kekmech.kben.io
 
-import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class BencodeReaderTest {
+internal class BencodeInputStreamTest {
 
     @Test
     fun `read strings`() {
         Mocks.StringPrimitives.RAW.zip(Mocks.StringPrimitives.IR).forEach { (rawString, irString) ->
             assertEquals(
                 irString,
-                BencodeReader(rawString.byteInputStream()).read()
+                BencodeInputStream(rawString.byteInputStream()).readBencodeElement()
             )
         }
     }
@@ -21,8 +20,8 @@ internal class BencodeReaderTest {
     @Test
     fun `read empty string`() {
         assertEquals(
-            BencodeByteArray(""),
-            BencodeReader("0:".byteInputStream()).read()
+            BencodeByteString(""),
+            BencodeInputStream("0:".byteInputStream()).readBencodeElement()
         )
     }
 
@@ -31,7 +30,7 @@ internal class BencodeReaderTest {
         Mocks.IntegerPrimitives.RAW.zip(Mocks.IntegerPrimitives.IR).forEach { (rawInteger, irInteger) ->
             assertEquals(
                 irInteger,
-                BencodeReader(rawInteger.byteInputStream()).read()
+                BencodeInputStream(rawInteger.byteInputStream()).readBencodeElement()
             )
         }
     }
@@ -40,7 +39,7 @@ internal class BencodeReaderTest {
     fun `read list of strings`() {
         assertEquals(
             Mocks.ListOfStrings.IR,
-            BencodeReader(Mocks.ListOfStrings.RAW.byteInputStream()).read()
+            BencodeInputStream(Mocks.ListOfStrings.RAW.byteInputStream()).readBencodeElement()
         )
     }
 
@@ -48,7 +47,7 @@ internal class BencodeReaderTest {
     fun `read list of integers`() {
         assertEquals(
             Mocks.ListOfIntegers.IR,
-            BencodeReader(Mocks.ListOfIntegers.RAW.byteInputStream()).read()
+            BencodeInputStream(Mocks.ListOfIntegers.RAW.byteInputStream()).readBencodeElement()
         )
     }
 
@@ -56,7 +55,7 @@ internal class BencodeReaderTest {
     fun `read empty list`() {
         assertEquals(
             BencodeList(emptyList()),
-            BencodeReader("le".byteInputStream()).read()
+            BencodeInputStream("le".byteInputStream()).readBencodeElement()
         )
     }
 
@@ -64,7 +63,7 @@ internal class BencodeReaderTest {
     fun `read dictionary with integer values`() {
         assertEquals(
             Mocks.DictionaryWithIntegers.IR,
-            BencodeReader(Mocks.DictionaryWithIntegers.RAW.byteInputStream()).read()
+            BencodeInputStream(Mocks.DictionaryWithIntegers.RAW.byteInputStream()).readBencodeElement()
         )
     }
 
@@ -72,7 +71,7 @@ internal class BencodeReaderTest {
     fun `read dictionary with string values`() {
         assertEquals(
             Mocks.DictionaryWithStrings.IR,
-            BencodeReader(Mocks.DictionaryWithStrings.RAW.byteInputStream()).read()
+            BencodeInputStream(Mocks.DictionaryWithStrings.RAW.byteInputStream()).readBencodeElement()
         )
     }
 
@@ -80,7 +79,7 @@ internal class BencodeReaderTest {
     fun `read empty dictionary`() {
         assertEquals(
             BencodeDictionary(sortedMapOf()),
-            BencodeReader("de".byteInputStream()).read()
+            BencodeInputStream("de".byteInputStream()).readBencodeElement()
         )
     }
 }

@@ -1,9 +1,10 @@
 package kekmech.kben.io
 
 internal object Constants {
-    val STRING_SEPARATOR = ":".toByteArray()
-    val START_INTEGER = "i".toByteArray()
-    val START_LIST = "l".toByteArray()
-    val START_DICTIONARY = "d".toByteArray()
-    val END = "e".toByteArray()
+
+    val STRING_SEPARATOR = ":".toByteArray()[0].toInt()
+    val START_INTEGER = "i".toByteArray()[0].toInt()
+    val START_LIST = "l".toByteArray()[0].toInt()
+    val START_DICTIONARY = "d".toByteArray()[0].toInt()
+    val END = "e".toByteArray()[0].toInt()
 }

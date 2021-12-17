@@ -17,7 +17,7 @@ internal object Mocks {
     object StringPrimitives {
 
         val LIST = strings
-        val IR = strings.map(::BencodeByteArray)
+        val IR = strings.map(::BencodeByteString)
         val RAW = strings.map { "${it.length}:$it" }
     }
 
@@ -29,7 +29,7 @@ internal object Mocks {
 
     object ListOfStrings {
 
-        val IR = BencodeList(strings.map(::BencodeByteArray))
+        val IR = BencodeList(strings.map(::BencodeByteString))
         val RAW = strings.joinToBencodeList { "${it.length}:$it" }
     }
 
@@ -43,7 +43,7 @@ internal object Mocks {
     object DictionaryWithStrings {
 
         val DICTIONARY = strings.zip(integers.map { it.toString() }).toMap().toSortedMap()
-        val IR = BencodeDictionary(DICTIONARY.mapValues { BencodeByteArray(it.value) }.toSortedMap())
+        val IR = BencodeDictionary(DICTIONARY.mapValues { BencodeByteString(it.value) }.toSortedMap())
         val RAW = DICTIONARY.jointToBencodeDictionary { key, value -> "${key.toBencode()}${value.toBencode()}" }
     }
 
