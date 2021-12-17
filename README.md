@@ -1,6 +1,6 @@
 # Kben
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/tonykolomeytsev/kben?label=version)
+[![](https://jitpack.io/v/tonykolomeytsev/kben.svg)](https://jitpack.io/#tonykolomeytsev/kben)
 ![](https://github.com/tonykolomeytsev/kben/actions/workflows/pull_requests.yml/badge.svg?branch=master)
 
 Kben - is a simple Bencode library for Kotlin. Library makes it easy to serialize data class instances to bencode and deserialize bencode back to objects.
