@@ -38,6 +38,8 @@ allprojects {
 
   `implementation("com.github.tonykolomeytsev.kben:kben-retrofit-converter:0.1.3")`
 
+Note that the project is using Kotlin 1.6.0 and Kotlin Reflect API dependency.
+
 ### Usage sample
 
 Converting objects  to bencode:
@@ -83,3 +85,7 @@ check(e == BencodeList(elements = listOf("hello", "world")))
 
 - Error handling is not yet complete.
 - Deserialization for objects of classes with `Any` type parameters.
+
+### License
+
+Distributed under the MIT license. See `LICENSE` for more information.
