@@ -25,7 +25,7 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
                 // parameter value
                 context.fromBencode<Any>(
                     bencodeElement = dict[name]!!,
-                    typeHolder = TypeHolder.from(parameter)
+                    typeHolder = TypeHolder.of(parameter)
                 )
             }
             .let {

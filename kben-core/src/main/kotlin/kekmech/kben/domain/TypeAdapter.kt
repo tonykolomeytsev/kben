@@ -3,6 +3,9 @@ package kekmech.kben.domain
 import kekmech.kben.TypeHolder
 import kekmech.kben.domain.dto.BencodeElement
 
+/**
+ * Converts Kotlin objects to Bencode and from Bencode.
+ */
 abstract class TypeAdapter<T : Any> {
 
     open fun toBencode(value: T, context: SerializationContext): BencodeElement {

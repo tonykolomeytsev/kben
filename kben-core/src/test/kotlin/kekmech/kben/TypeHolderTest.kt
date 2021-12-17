@@ -33,7 +33,7 @@ internal class TypeHolderTest {
                     TypeHolder.Simple(String::class),
                 ),
             ),
-            TypeHolder.from(A::class.primaryConstructor!!.parameters[0]),
+            TypeHolder.of(A::class.primaryConstructor!!.parameters[0]),
         )
     }
 
@@ -57,7 +57,7 @@ internal class TypeHolderTest {
                     ),
                 ),
             ),
-            TypeHolder.from(A::class.primaryConstructor!!.parameters[1]),
+            TypeHolder.of(A::class.primaryConstructor!!.parameters[1]),
         )
     }
 }

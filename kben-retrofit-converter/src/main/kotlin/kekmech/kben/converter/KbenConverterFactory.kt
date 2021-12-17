@@ -17,7 +17,7 @@ class KbenConverterFactory private constructor(
         annotations: Array<out Annotation>,
         retrofit: Retrofit
     ): Converter<ResponseBody, *> =
-        KbenResponseBodyConverter<Any>(kben, TypeHolder.Companion.from(type))
+        KbenResponseBodyConverter<Any>(kben, TypeHolder.Companion.of(type))
 
     override fun requestBodyConverter(
         type: Type,
