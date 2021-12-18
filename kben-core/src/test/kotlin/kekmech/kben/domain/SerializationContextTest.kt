@@ -93,4 +93,20 @@ internal class SerializationContextTest {
             context.toBencode(Mocks.SetOfStrings.SET)
         )
     }
+
+    @Test
+    fun `serialize simple data class instance`() {
+        assertEquals(
+            Mocks.SimpleDataClass.IR,
+            context.toBencode(Mocks.SimpleDataClass.INSTANCE),
+        )
+    }
+
+    @Test
+    fun `serialize data class instance with generic`() {
+        assertEquals(
+            Mocks.DataClassWithGeneric.IR,
+            context.toBencode(Mocks.DataClassWithGeneric.INSTANCE),
+        )
+    }
 }

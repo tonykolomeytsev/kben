@@ -94,4 +94,22 @@ internal class DeserializationContextTest {
             context.fromBencode(Mocks.SetOfStrings.IR, TypeHolder.ofSet(String::class))
         )
     }
+
+    @Test
+    fun `deserialize simple data class instance`() {
+        assertEquals(
+            Mocks.SimpleDataClass.INSTANCE,
+            context.fromBencode(Mocks.SimpleDataClass.IR, TypeHolder.Simple(Mocks.SimpleDataClass.User::class))
+        )
+    }
+
+    @Test
+    fun `deserialize data class instance with generic`() {
+        assertEquals(
+            Mocks.DataClassWithGeneric.INSTANCE,
+            context.fromBencode(Mocks.DataClassWithGeneric.IR,
+                TypeHolder.Parameterized(Mocks.DataClassWithGeneric.Container::class,
+                    listOf(TypeHolder.Simple(String::class))))
+        )
+    }
 }
