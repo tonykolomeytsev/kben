@@ -61,6 +61,52 @@ internal object Mocks {
         val RAW = ListOfStrings.RAW
     }
 
+    object SimpleDataClass {
+
+        data class User(
+            val name: String,
+            val age: Int,
+        )
+
+        val INSTANCE = User(
+            name = "Anton",
+            age = 24,
+        )
+        val IR = BencodeDictionary(
+            sortedMapOf(
+                "name" to BencodeByteString("Anton"),
+                "age" to BencodeInteger(24L),
+            )
+        )
+        val RAW = """
+            d
+                4:name  5:Anton
+                3:age   i24e
+            e
+        """.compress()
+    }
+
+    object DataClassWithGeneric {
+
+        data class Container<T>(
+            val value: T
+        )
+
+        val INSTANCE: Container<String> = Container(
+            value = "Test"
+        )
+        val IR = BencodeDictionary(
+            sortedMapOf(
+                "value" to BencodeByteString("Test"),
+            )
+        )
+        val RAW = """
+            d
+                5:value $:Test
+            e
+        """.compress()
+    }
+
     private fun String.compress() = filterNot { it.isWhitespace() || it == '\n' }
 
     private fun String.toBencode(): String = "${length}:$this"

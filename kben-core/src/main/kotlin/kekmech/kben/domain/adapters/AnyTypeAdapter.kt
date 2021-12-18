@@ -12,6 +12,7 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.javaType
 
 internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
@@ -20,31 +21,43 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
         context: DeserializationContext,
         typeHolder: TypeHolder,
     ): T {
-        val dict = (value as BencodeElement.BencodeDictionary).entries
+        val dictionary = (value as BencodeElement.BencodeDictionary).entries
         val properties = typeHolder.type.declaredMemberProperties.associateBy { it.name }
+        val constructorArguments = mutableMapOf<KParameter, Any>()
+        @Suppress("UNCHECKED_CAST")
         return typeHolder
             .type
             .primaryConstructorParameters
-            .associateWith { parameter ->
-                val name = properties[parameter.name]?.annotatedName
+            .onEach { parameter ->
+                val relatedProperty = (properties[parameter.name] as? KProperty1<T, Any>)
                     ?: throw propertyNotFoundError(
                         className = typeHolder.type.qualifiedName!!,
                         parameterName = parameter.name!!,
                     )
-                // parameter value
-                context.fromBencode<Any>(
-                    bencodeElement = dict[name]
-                        ?: throw missedDictKeyError(
-                            className = typeHolder.type.qualifiedName.orEmpty(),
-                            parameterName = parameter.name.orEmpty(),
-                            annotatedParameterName = name
-                        ),
-                    typeHolder = TypeHolder.of(parameter)
-                )
+                if (!relatedProperty.isTransient) {
+                    val name = relatedProperty.annotatedName
+                    constructorArguments[parameter] =
+                        context.fromBencode(
+                            bencodeElement = dictionary[name]
+                                ?: throw missedDictKeyError(
+                                    className = typeHolder.type.qualifiedName.orEmpty(),
+                                    parameterName = parameter.name.orEmpty(),
+                                    annotatedParameterName = name
+                                ),
+                            typeHolder = when (typeHolder) {
+                                is TypeHolder.Simple -> TypeHolder.of(parameter)
+                                is TypeHolder.Parameterized -> {
+                                    val parameterTypeName = parameter.type.javaType.typeName
+                                    val typeHolderParameters = typeHolder.type.typeParameters.map { it.name }
+                                    val index = typeHolderParameters.indexOf(parameterTypeName)
+                                    typeHolder.parameterTypes[index]
+                                }
+                            },
+                        )
+                }
             }
             .let {
-                @Suppress("UNCHECKED_CAST")
-                typeHolder.type.primaryConstructor!!.callBy(it) as T
+                typeHolder.type.primaryConstructor!!.callBy(constructorArguments) as T
             }
     }
 
@@ -52,26 +65,32 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
         val dictionary = sortedMapOf<String, BencodeElement>()
         val properties = value::class.declaredMemberProperties.associateBy { it.name }
         @Suppress("UNCHECKED_CAST")
-        value::class.primaryConstructorParameters.forEach { parameter ->
-            val parameterCorrespondingProperty =
-                (properties[parameter.name] as? KProperty1<T, Any>)
+        return value::class
+            .primaryConstructorParameters
+            .onEach { parameter ->
+                val relatedProperty = (properties[parameter.name] as? KProperty1<T, Any>)
                     ?: throw propertyNotFoundError(
                         className = value::class.qualifiedName!!,
                         parameterName = parameter.name!!,
                     )
-            val obtainedValue = context.toBencode(parameterCorrespondingProperty.get(value))
-            dictionary[parameterCorrespondingProperty.annotatedName] = obtainedValue
-        }
-        return BencodeElement.BencodeDictionary(dictionary)
+                if (!relatedProperty.isTransient) {
+                    val obtainedValue = context.toBencode(relatedProperty.get(value))
+                    dictionary[relatedProperty.annotatedName] = obtainedValue
+                }
+            }
+            .let {
+                BencodeElement.BencodeDictionary(dictionary)
+            }
     }
 
     private val KProperty<*>.annotatedName
-        get() =
-            (annotations.firstOrNull { it is Bencode } as? Bencode)?.name ?: name
+        get() = (annotations.firstOrNull { it is Bencode } as? Bencode)?.name ?: name
+
+    private val KProperty<*>.isTransient
+        get() = annotations.any { it is Transient }
 
     private val KClass<*>.primaryConstructorParameters
-        get() =
-            primaryConstructor!!.parameters
+        get() = primaryConstructor!!.parameters
 
     private val TypeHolder.type
         get() =
