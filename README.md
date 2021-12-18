@@ -32,11 +32,11 @@ allprojects {
 
 - Core - the library. Bencode serializer/deserializer for Kotlin.
 
-  `implementation("com.github.tonykolomeytsev.kben:kben-core:0.1.3")`
+  `implementation("com.github.tonykolomeytsev.kben:kben-core:0.1.4")`
 
 - Retrofit Converter.
 
-  `implementation("com.github.tonykolomeytsev.kben:kben-retrofit-converter:0.1.3")`
+  `implementation("com.github.tonykolomeytsev.kben:kben-retrofit-converter:0.1.4")`
 
 Note that the project is using Kotlin 1.6.0 and Kotlin Reflect API dependency.
 
@@ -70,7 +70,7 @@ As you can see, to deserialize objects of class with type parameters, you need t
 **Example:**  `TypeHolder` could not be generated for `List<String>`, but easily generated automatically for `data class Wrapper(val items: List<String>)`.
 
 If you don't want to deserialize bencode to a specific type, you can use the raw Kben datatypes (inherited from `BencodeElement`):
-- `BencodeByteArray` is a `byte string` from the bencode spec.
+- `BencodeByteString` is a `byte string` from the bencode spec.
 - `BencodeInteger` is an `integer`.
 - `BencodeList` is a `list`.
 - `BencodeDictionary` is a `dictionary` from the bencode spec.

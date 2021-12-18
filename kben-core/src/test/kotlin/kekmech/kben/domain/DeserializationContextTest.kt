@@ -116,6 +116,7 @@ internal class DeserializationContextTest {
         val a: C,
         val b: B,
         val c: A,
+        @Transient
         val d: String = "test",
     )
 
@@ -132,7 +133,7 @@ internal class DeserializationContextTest {
                         "a" to BencodeByteString("42"),
                         "b" to BencodeInteger(1),
                         "c" to BencodeInteger(999L),
-                        "d" to BencodeByteString("test"),
+                        "d" to BencodeByteString("test1"),
                     )
                 ),
                 TypeHolder.Parameterized(

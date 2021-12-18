@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = "kekmech"
-    version = "0.1.3"
+    version = "0.1.4"
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
