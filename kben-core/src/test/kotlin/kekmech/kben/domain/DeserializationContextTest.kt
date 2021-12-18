@@ -244,4 +244,16 @@ internal class DeserializationContextTest {
             )
         )
     }
+
+    @Test
+    fun `deserialize boolean`() {
+        assertEquals(
+            true,
+            context.fromBencode(BencodeInteger(1L), TypeHolder.Simple(Boolean::class)),
+        )
+        assertEquals(
+            false,
+            context.fromBencode(BencodeInteger(0L), TypeHolder.Simple(Boolean::class)),
+        )
+    }
 }

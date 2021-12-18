@@ -12,6 +12,7 @@ internal object StandardTypeAdaptersFactory {
             Long::class to LongTypeAdapter(),
             String::class to StringTypeAdapter(),
             ByteArray::class to ByteArrayTypeAdapter(),
+            Boolean::class to BooleanTypeAdapter(),
             BencodeElement.BencodeInteger::class to BencodeIntegerTypeAdapter(),
             BencodeElement.BencodeByteString::class to BencodeByteStringTypeAdapter(),
             BencodeElement.BencodeList::class to BencodeListTypeAdapter(),

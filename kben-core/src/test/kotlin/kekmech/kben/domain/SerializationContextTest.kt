@@ -221,4 +221,16 @@ internal class SerializationContextTest {
             )
         )
     }
+
+    @Test
+    fun `serialize boolean`() {
+        assertEquals(
+            BencodeInteger(1L),
+            context.toBencode(true),
+        )
+        assertEquals(
+            BencodeInteger(0L),
+            context.toBencode(false),
+        )
+    }
 }
