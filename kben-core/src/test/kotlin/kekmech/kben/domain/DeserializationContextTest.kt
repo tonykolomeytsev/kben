@@ -1,6 +1,7 @@
 package kekmech.kben.domain
 
 import kekmech.kben.TypeHolder
+import kekmech.kben.annotations.Bencode
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
@@ -96,54 +97,150 @@ internal class DeserializationContextTest {
 
     @Test
     fun `deserialize simple data class instance`() {
-        assertEquals(
-            Mocks.SimpleDataClass.INSTANCE,
-            context.fromBencode(Mocks.SimpleDataClass.IR, TypeHolder.Simple(Mocks.SimpleDataClass.User::class))
+
+        data class Value(
+            val property1: String,
+            val property2: Long,
         )
-    }
-
-    @Test
-    fun `deserialize data class instance with generic`() {
-        assertEquals(
-            Mocks.DataClassWithGeneric.INSTANCE,
-            context.fromBencode(Mocks.DataClassWithGeneric.IR,
-                TypeHolder.Parameterized(Mocks.DataClassWithGeneric.Container::class,
-                    listOf(TypeHolder.Simple(String::class))))
-        )
-    }
-
-    data class Container<A, B, C>(
-        val a: C,
-        val b: B,
-        val c: A,
-        @Transient
-        val d: String = "test",
-    )
-
-    @Test
-    fun `super complex generic test`() {
-
-        val instance = Container<Long, Int, String>("42", 1, 999L)
 
         assertEquals(
-            instance,
+            Value(
+                property1 = "test",
+                property2 = 42L,
+            ),
             context.fromBencode(
                 BencodeDictionary(
                     sortedMapOf(
-                        "a" to BencodeByteString("42"),
-                        "b" to BencodeInteger(1),
-                        "c" to BencodeInteger(999L),
-                        "d" to BencodeByteString("test1"),
+                        "property1" to BencodeByteString("test"),
+                        "property2" to BencodeInteger(42L),
                     )
                 ),
                 TypeHolder.Parameterized(
-                    Container::class,
-                    listOf(
-                        TypeHolder.Simple(Long::class),
-                        TypeHolder.Simple(Int::class),
+                    type = Value::class,
+                    parameterTypes = listOf(
+                        TypeHolder.Simple(String::class),
+                    ),
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun `deserialize generic data class instance`() {
+
+        data class Value<T>(
+            val property1: T,
+            val property2: Long,
+        )
+
+        assertEquals(
+            Value<String>(
+                property1 = "test",
+                property2 = 42L,
+            ),
+            context.fromBencode(
+                BencodeDictionary(
+                    sortedMapOf(
+                        "property1" to BencodeByteString("test"),
+                        "property2" to BencodeInteger(42L),
+                    )
+                ),
+                TypeHolder.Parameterized(
+                    type = Value::class,
+                    parameterTypes = listOf(
                         TypeHolder.Simple(String::class),
                     )
                 )
+            ),
+        )
+    }
+
+    @Test
+    fun `deserialize multi-generic data class instance`() {
+
+        data class Value<T, U, V>(
+            val property1: T,
+            val property2: Long,
+            val property3: U,
+            val property4: V,
+        )
+
+        assertEquals(
+            Value<String, Long, Int>(
+                property1 = "test",
+                property2 = 42L,
+                property3 = -1L,
+                property4 = 0
+            ),
+            context.fromBencode(
+                BencodeDictionary(
+                    sortedMapOf(
+                        "property1" to BencodeByteString("test"),
+                        "property2" to BencodeInteger(42L),
+                        "property3" to BencodeInteger(-1),
+                        "property4" to BencodeInteger(0L),
+                    )
+                ),
+                TypeHolder.Parameterized(
+                    type = Value::class,
+                    parameterTypes = listOf(
+                        TypeHolder.Simple(String::class),
+                        TypeHolder.Simple(Long::class),
+                        TypeHolder.Simple(Int::class),
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `deserialize data class with @Bencode annotated property`() {
+
+        data class Value(
+            @Bencode(name = "first property")
+            val property1: String,
+            @Bencode(name = "second property")
+            val property2: String,
+        )
+
+        assertEquals(
+            Value(
+                property1 = "hello",
+                property2 = "world",
+            ),
+            context.fromBencode(
+                BencodeDictionary(
+                    sortedMapOf(
+                        "first property" to BencodeByteString("hello"),
+                        "second property" to BencodeByteString("world"),
+                    )
+                ),
+                TypeHolder.Simple(Value::class)
+            )
+        )
+    }
+
+    @Test
+    fun `deserialize data class with @Transient annotated property`() {
+
+        data class Value(
+            val property1: String,
+            @Transient
+            val property2: String = "world",
+        )
+
+        assertEquals(
+            Value(
+                property1 = "hello",
+            ),
+            context.fromBencode(
+                BencodeDictionary(
+                    sortedMapOf(
+                        "property1" to BencodeByteString("hello"),
+                        "property2" to BencodeByteString("ignored value"),
+                    )
+                ),
+                TypeHolder.Simple(Value::class)
             )
         )
     }
