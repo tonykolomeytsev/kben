@@ -15,16 +15,30 @@ import kotlin.reflect.full.primaryConstructor
 
 internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
-    override fun fromBencode(value: BencodeElement, context: DeserializationContext, typeHolder: TypeHolder): T {
+    override fun fromBencode(
+        value: BencodeElement,
+        context: DeserializationContext,
+        typeHolder: TypeHolder,
+    ): T {
         val dict = (value as BencodeElement.BencodeDictionary).entries
+        val properties = typeHolder.type.declaredMemberProperties.associateBy { it.name }
         return typeHolder
             .type
             .primaryConstructorParameters
             .associateWith { parameter ->
-                val name = parameter.annotatedName
+                val name = properties[parameter.name]?.annotatedName
+                    ?: throw propertyNotFoundError(
+                        className = typeHolder.type.qualifiedName!!,
+                        parameterName = parameter.name!!,
+                    )
                 // parameter value
                 context.fromBencode<Any>(
-                    bencodeElement = dict[name]!!,
+                    bencodeElement = dict[name]
+                        ?: throw missedDictKeyError(
+                            className = typeHolder.type.qualifiedName.orEmpty(),
+                            parameterName = parameter.name.orEmpty(),
+                            annotatedParameterName = name
+                        ),
                     typeHolder = TypeHolder.of(parameter)
                 )
             }
@@ -36,20 +50,20 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
     override fun toBencode(value: T, context: SerializationContext): BencodeElement {
         val dictionary = sortedMapOf<String, BencodeElement>()
+        val properties = value::class.declaredMemberProperties.associateBy { it.name }
         @Suppress("UNCHECKED_CAST")
         value::class.primaryConstructorParameters.forEach { parameter ->
-            val name = parameter.annotatedName
             val parameterCorrespondingProperty =
-                value::class.declaredMemberProperties.first { it.annotatedName == name } as KProperty1<T, Any>
+                (properties[parameter.name] as? KProperty1<T, Any>)
+                    ?: throw propertyNotFoundError(
+                        className = value::class.qualifiedName!!,
+                        parameterName = parameter.name!!,
+                    )
             val obtainedValue = context.toBencode(parameterCorrespondingProperty.get(value))
-            dictionary[name] = obtainedValue
+            dictionary[parameterCorrespondingProperty.annotatedName] = obtainedValue
         }
         return BencodeElement.BencodeDictionary(dictionary)
     }
-
-    private val KParameter.annotatedName
-        get() =
-            (annotations.firstOrNull { it is Bencode } as? Bencode)?.name ?: name
 
     private val KProperty<*>.annotatedName
         get() =
@@ -65,4 +79,23 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
                 is TypeHolder.Simple -> type
                 is TypeHolder.Parameterized -> type
             }
+
+    private fun missedDictKeyError(
+        className: String,
+        parameterName: String,
+        annotatedParameterName: String,
+    ): Throwable =
+        IllegalStateException(
+            "Parameter $parameterName was specified for class ${className}, but no value " +
+                "with key '$annotatedParameterName' was found for it in the data being serialized."
+        )
+
+    private fun propertyNotFoundError(
+        className: String,
+        parameterName: String,
+    ): Throwable =
+        IllegalStateException(
+            "A property named '$parameterName' that matches the $parameterName constructor " +
+                "parameter of the class $className was not found."
+        )
 }
