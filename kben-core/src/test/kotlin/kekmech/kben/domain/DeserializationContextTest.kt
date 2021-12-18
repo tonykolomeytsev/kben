@@ -4,7 +4,9 @@ import kekmech.kben.TypeHolder
 import kekmech.kben.annotations.Bencode
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
+import java.security.MessageDigest
 import kotlin.test.assertEquals
 
 internal class DeserializationContextTest {
@@ -270,6 +272,66 @@ internal class DeserializationContextTest {
         assertEquals(
             TestEnum1.OPTION_2,
             context.fromBencode(BencodeByteString("OPTION_2"), TypeHolder.Simple(TestEnum1::class))
+        )
+    }
+
+    @Test
+    fun `deserialize bencode integer to any`() {
+        val expected: Any = 42L
+        val actual: Any = context.fromBencode(BencodeInteger(42L), TypeHolder.Simple(Any::class))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `deserialize bencode byte string to any (correct UTF-8 string)`() {
+        val expected: Any = "i love kotlin"
+        val actual: Any = context.fromBencode(BencodeByteString("i love kotlin"), TypeHolder.Simple(Any::class))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `deserialize bencode byte string to any (not a UTF-8 string)`() {
+        val byteArray = MessageDigest
+            .getInstance("SHA-256")
+            .digest("test".toByteArray())
+
+        val expected: Any = byteArray
+        val actual: Any = context.fromBencode(BencodeByteString(byteArray), TypeHolder.Simple(Any::class))
+        assertArrayEquals(expected as ByteArray, actual as ByteArray)
+    }
+
+    @Test
+    fun `deserialize bencode list to list of any`() {
+        assertEquals(
+            listOf<Any>(-1L, "hello"),
+            context.fromBencode(
+                BencodeList(
+                    elements = listOf(
+                        BencodeInteger(-1L),
+                        BencodeByteString("hello"),
+                    )
+                ),
+                TypeHolder.ofList(Any::class)
+            )
+        )
+    }
+
+    @Test
+    fun `deserialize bencode dictionary to map of any`() {
+        assertEquals(
+            mapOf<String, Any>(
+                "property1" to -1L,
+                "property2" to "hello",
+            ),
+            context.fromBencode(
+                BencodeDictionary(
+                    entries = sortedMapOf(
+                        "property1" to BencodeInteger(-1L),
+                        "property2" to BencodeByteString("hello"),
+                    )
+                ),
+                TypeHolder.ofMap(Any::class)
+            )
         )
     }
 }
