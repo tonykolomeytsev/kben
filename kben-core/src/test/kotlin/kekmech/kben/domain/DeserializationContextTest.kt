@@ -1,8 +1,7 @@
 package kekmech.kben.domain
 
 import kekmech.kben.TypeHolder
-import kekmech.kben.domain.dto.BencodeElement.BencodeDictionary
-import kekmech.kben.domain.dto.BencodeElement.BencodeList
+import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -110,6 +109,39 @@ internal class DeserializationContextTest {
             context.fromBencode(Mocks.DataClassWithGeneric.IR,
                 TypeHolder.Parameterized(Mocks.DataClassWithGeneric.Container::class,
                     listOf(TypeHolder.Simple(String::class))))
+        )
+    }
+
+    data class Container<A, B, C>(
+        val a: C,
+        val b: B,
+        val c: A,
+    )
+
+    @Test
+    fun `super complex generic test`() {
+        
+        val instance = Container<Long, Int, String>("42", 1, 999L)
+
+        assertEquals(
+            instance,
+            context.fromBencode(
+                BencodeDictionary(
+                    sortedMapOf(
+                        "a" to BencodeByteString("42"),
+                        "b" to BencodeInteger(1),
+                        "c" to BencodeInteger(999L),
+                    )
+                ),
+                TypeHolder.Parameterized(
+                    Container::class,
+                    listOf(
+                        TypeHolder.Simple(Long::class),
+                        TypeHolder.Simple(Int::class),
+                        TypeHolder.Simple(String::class),
+                    )
+                )
+            )
         )
     }
 }
