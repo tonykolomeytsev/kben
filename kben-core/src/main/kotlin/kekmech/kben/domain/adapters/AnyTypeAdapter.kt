@@ -6,9 +6,11 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
+import java.lang.reflect.Modifier
 import kotlin.reflect.*
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 
 internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
@@ -98,7 +100,7 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
         get() = (annotations.firstOrNull { it is Bencode } as? Bencode)?.name ?: name
 
     private val KProperty<*>.isTransient
-        get() = annotations.any { it is Transient }
+        get() = Modifier.isTransient(javaField?.modifiers ?: 0)
 
     private val KClass<*>.primaryConstructorParameters
         get() = primaryConstructor!!.parameters
