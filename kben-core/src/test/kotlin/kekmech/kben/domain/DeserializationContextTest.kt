@@ -116,11 +116,12 @@ internal class DeserializationContextTest {
         val a: C,
         val b: B,
         val c: A,
+        val d: String = "test",
     )
 
     @Test
     fun `super complex generic test`() {
-        
+
         val instance = Container<Long, Int, String>("42", 1, 999L)
 
         assertEquals(
@@ -131,6 +132,7 @@ internal class DeserializationContextTest {
                         "a" to BencodeByteString("42"),
                         "b" to BencodeInteger(1),
                         "c" to BencodeInteger(999L),
+                        "d" to BencodeByteString("test"),
                     )
                 ),
                 TypeHolder.Parameterized(

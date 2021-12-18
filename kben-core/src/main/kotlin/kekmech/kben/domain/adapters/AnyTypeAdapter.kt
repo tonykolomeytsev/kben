@@ -6,10 +6,7 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
-import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
+import kotlin.reflect.*
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
@@ -46,12 +43,8 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
                                 ),
                             typeHolder = when (typeHolder) {
                                 is TypeHolder.Simple -> TypeHolder.of(parameter)
-                                is TypeHolder.Parameterized -> {
-                                    val parameterTypeName = parameter.type.javaType.typeName
-                                    val typeHolderParameters = typeHolder.type.typeParameters.map { it.name }
-                                    val index = typeHolderParameters.indexOf(parameterTypeName)
-                                    typeHolder.parameterTypes[index]
-                                }
+                                is TypeHolder.Parameterized ->
+                                    createTypeHolder(parameter, typeHolder)
                             },
                         )
                 }
@@ -59,6 +52,24 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
             .let {
                 typeHolder.type.primaryConstructor!!.callBy(constructorArguments) as T
             }
+    }
+
+    private fun createTypeHolder(
+        parameter: KParameter,
+        typeHolder: TypeHolder.Parameterized,
+    ): TypeHolder {
+        return if (parameter.type.isErasedType) {
+            val parameterTypeName = parameter.type.javaType.typeName
+            val index = typeHolder.type
+                .typeParameters
+                .indexOfFirst { typeParameter -> typeParameter.name == parameterTypeName }
+            typeHolder.parameterTypes.getOrNull(index)
+                ?: throw IllegalStateException(
+                    "Can't infer type $parameterTypeName of parameter ${parameter.name}."
+                )
+        } else {
+            TypeHolder.of(parameter)
+        }
     }
 
     override fun toBencode(value: T, context: SerializationContext): BencodeElement {
@@ -91,6 +102,9 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
 
     private val KClass<*>.primaryConstructorParameters
         get() = primaryConstructor!!.parameters
+
+    private val KType.isErasedType
+        get() = javaType !is Class<*>
 
     private val TypeHolder.type
         get() =
