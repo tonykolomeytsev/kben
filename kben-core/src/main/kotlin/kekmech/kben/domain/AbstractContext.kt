@@ -11,12 +11,7 @@ abstract class AbstractContext(
 
     @Suppress("UNCHECKED_CAST")
     protected fun <T : Any> findTypeAdapterFor(typeHolder: TypeHolder): TypeAdapter<T>? =
-        findTypeAdapterFor(
-            type = when (typeHolder) {
-                is TypeHolder.Simple -> typeHolder.type
-                is TypeHolder.Parameterized -> typeHolder.type
-            } as KClass<T>
-        )
+        findTypeAdapterFor(typeHolder.type as KClass<T>)
 
     @Suppress("UNCHECKED_CAST")
     protected fun <T : Any> findTypeAdapterFor(type: KClass<T>): TypeAdapter<T>? {

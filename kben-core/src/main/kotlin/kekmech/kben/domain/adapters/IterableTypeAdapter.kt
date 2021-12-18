@@ -23,7 +23,7 @@ internal class IterableTypeAdapter<T : Any> : TypeAdapter<Iterable<T>>() {
     }
 
     private fun List<T>.toProperIterableType(typeHolder: TypeHolder): Iterable<T> =
-        if ((typeHolder as TypeHolder.Parameterized).type == Set::class) toHashSet() else this
+        if (typeHolder.type == Set::class) toHashSet() else this
 
     override fun toBencode(value: Iterable<T>, context: SerializationContext): BencodeElement {
         return BencodeElement.BencodeList(value.map { context.toBencode(it) })
