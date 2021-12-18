@@ -1,7 +1,7 @@
 package kekmech.kben.domain
 
-import kekmech.kben.domain.dto.BencodeElement.BencodeDictionary
-import kekmech.kben.domain.dto.BencodeElement.BencodeList
+import kekmech.kben.annotations.Bencode
+import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -96,17 +96,129 @@ internal class SerializationContextTest {
 
     @Test
     fun `serialize simple data class instance`() {
+
+        data class Value(
+            val property1: String,
+            val property2: Long,
+        )
+
         assertEquals(
-            Mocks.SimpleDataClass.IR,
-            context.toBencode(Mocks.SimpleDataClass.INSTANCE),
+            BencodeDictionary(
+                sortedMapOf(
+                    "property1" to BencodeByteString("test"),
+                    "property2" to BencodeInteger(42L),
+                )
+            ),
+            context.toBencode(
+                Value(
+                    property1 = "test",
+                    property2 = 42L,
+                )
+            ),
         )
     }
 
     @Test
-    fun `serialize data class instance with generic`() {
+    fun `serialize generic data class instance`() {
+
+        data class Value<T>(
+            val property1: T,
+            val property2: Long,
+        )
+
         assertEquals(
-            Mocks.DataClassWithGeneric.IR,
-            context.toBencode(Mocks.DataClassWithGeneric.INSTANCE),
+            BencodeDictionary(
+                sortedMapOf(
+                    "property1" to BencodeByteString("test"),
+                    "property2" to BencodeInteger(42L),
+                )
+            ),
+            context.toBencode(
+                Value<String>(
+                    property1 = "test",
+                    property2 = 42L,
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `serialize multi-generic data class instance`() {
+
+        data class Value<T, U, V>(
+            val property1: T,
+            val property2: Long,
+            val property3: U,
+            val property4: V,
+        )
+
+        assertEquals(
+            BencodeDictionary(
+                sortedMapOf(
+                    "property1" to BencodeByteString("test"),
+                    "property2" to BencodeInteger(42L),
+                    "property3" to BencodeInteger(-1),
+                    "property4" to BencodeInteger(0L),
+                )
+            ),
+            context.toBencode(
+                Value<String, Long, Int>(
+                    property1 = "test",
+                    property2 = 42L,
+                    property3 = -1L,
+                    property4 = 0
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `serialize data class with @Bencode annotated property`() {
+
+        data class Value(
+            @Bencode(name = "first property")
+            val property1: String,
+            @Bencode(name = "second property")
+            val property2: String,
+        )
+
+        assertEquals(
+            BencodeDictionary(
+                sortedMapOf(
+                    "first property" to BencodeByteString("hello"),
+                    "second property" to BencodeByteString("world"),
+                )
+            ),
+            context.toBencode(
+                Value(
+                    property1 = "hello",
+                    property2 = "world",
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `serialize data class with @Transient annotated property`() {
+
+        data class Value(
+            val property1: String,
+            @Transient
+            val property2: String = "world",
+        )
+
+        assertEquals(
+            BencodeDictionary(
+                sortedMapOf(
+                    "property1" to BencodeByteString("hello"),
+                )
+            ),
+            context.toBencode(
+                Value(
+                    property1 = "hello",
+                    property2 = "ignored value",
+                )
+            )
         )
     }
 }
