@@ -22,7 +22,9 @@ import kotlin.reflect.jvm.javaType
  * - [TypeHolder.ofMap]
  * - [TypeHolder.ofSet]
  */
-sealed class TypeHolder {
+sealed class TypeHolder private constructor() {
+
+    abstract val type: KClass<*>
 
     /**
      * A simplified representation of the Kotlin class **without type parameters**.
@@ -40,7 +42,7 @@ sealed class TypeHolder {
      * Simple(List::class) // Error, `List<T>` is a class with type parameters.
      * ```
      */
-    data class Simple(val type: KClass<*>) : TypeHolder() {
+    data class Simple(override val type: KClass<*>) : TypeHolder() {
 
         override fun toString(): String = "*${type.simpleName}"
     }
@@ -60,7 +62,7 @@ sealed class TypeHolder {
      *     kben.fromBencode("d5:helloi42e5:worldi-1ee", TypeHolder.ofMap(Int::class))
      * ```
      */
-    data class Parameterized(val type: KClass<*>, val parameterTypes: List<TypeHolder>) : TypeHolder() {
+    data class Parameterized(override val type: KClass<*>, val parameterTypes: List<TypeHolder>) : TypeHolder() {
 
         override fun toString(): String = "*${type.simpleName}${
             parameterTypes.joinToString(", ", "<", ">")

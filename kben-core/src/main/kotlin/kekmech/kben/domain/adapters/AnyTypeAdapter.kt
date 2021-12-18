@@ -108,13 +108,6 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
     private val KType.isErasedType
         get() = javaType !is Class<*>
 
-    private val TypeHolder.type
-        get() =
-            when (this) {
-                is TypeHolder.Simple -> type
-                is TypeHolder.Parameterized -> type
-            }
-
     private fun missedDictKeyError(
         className: String,
         parameterName: String,

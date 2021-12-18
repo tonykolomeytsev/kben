@@ -256,4 +256,20 @@ internal class DeserializationContextTest {
             context.fromBencode(BencodeInteger(0L), TypeHolder.Simple(Boolean::class)),
         )
     }
+
+    private enum class TestEnum1 {
+        OPTION_1, OPTION_2
+    }
+
+    @Test
+    fun `deserialize enum`() {
+        assertEquals(
+            TestEnum1.OPTION_1,
+            context.fromBencode(BencodeByteString("OPTION_1"), TypeHolder.Simple(TestEnum1::class))
+        )
+        assertEquals(
+            TestEnum1.OPTION_2,
+            context.fromBencode(BencodeByteString("OPTION_2"), TypeHolder.Simple(TestEnum1::class))
+        )
+    }
 }
