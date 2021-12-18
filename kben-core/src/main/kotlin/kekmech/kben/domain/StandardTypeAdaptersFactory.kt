@@ -18,6 +18,7 @@ internal object StandardTypeAdaptersFactory {
             BencodeElement.BencodeList::class to BencodeListTypeAdapter(),
             BencodeElement.BencodeDictionary::class to BencodeDictionaryTypeAdapter(),
             BencodeElement::class to BencodeElementTypeAdapter(),
+            Any::class to AnyTargetTypeAdapter(),
         )
 }
 

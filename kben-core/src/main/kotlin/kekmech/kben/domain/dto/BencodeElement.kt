@@ -1,5 +1,6 @@
 package kekmech.kben.domain.dto
 
+import kekmech.kben.domain.dto.BencodeElement.*
 import java.math.BigInteger
 import java.util.*
 
@@ -36,7 +37,7 @@ sealed class BencodeElement {
          * True if **byte string** content is a valid UTF-8 string.
          */
         val isValidUTF8String: Boolean get() =
-            bytes.all { Char(it.toInt()).isDefined() }
+            bytes.all { it >= 0 && Char(it.toInt()).isDefined() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
