@@ -62,10 +62,10 @@ data class Movie(val name: String, val year: Int)
 // ...
 kben.toBencode(
     Movie(
-        name = "Matrix: Revolution", 
+        name = "The Matrix Revolutions", 
         year = 2003,
     )
-) // d4:name18:Matrix: Revolution4:yeari2003ee
+) // d4:name22:The Matrix Revolutions4:yeari2003ee
 ```
 
 ### Converting bencode to objects
@@ -83,8 +83,8 @@ kben.fromBencode(
 data class Movie(val name: String, val year: Int)
 // ...
 kben.fromBencode<Movie>(
-    "d4:name18:Matrix: Revolution4:yeari2003ee"
-) // Movie(name = "Matrix: Revolution", year = 2003)
+    "d4:name22:The Matrix Revolutions4:yeari2003ee"
+) // Movie(name = "The Matrix Revolutions", year = 2003)
 ```
 
 As you can see, to deserialize objects of class with type parameters, you need to provide `TypeHolder` to `fromBencode()` function (just like in Gson library). `TypeHolder` is a simplified type representation for the Kben deserializer.  `TypeHolder` is generated automatically for all classes that do not have type parameters (even if its properties still have type parameters).
@@ -159,6 +159,42 @@ val bencodedMessage = kben.toBencode(message)
 
 val decodedMessage = kben.fromBencode<Message>(bencodedMessage)
 assertEquals(message, decodedMessage)
+```
+
+### Ignoring properties on serialization
+
+Use `@kotlin.jvm.Transient` annotation for properties that should not be involved in serialization and deserialization.
+```kotlin
+data class User(
+    val name: String,
+    @Transient
+    val isOnline: Boolean = false,
+)
+// ...
+kben.toBencode(User("John", isOnline = true))
+// d4:name4:Johne
+```
+
+### Default values for enum classes
+
+You can add `@DefaultValue` annotation to one of the enum values so that it is returned in case of an enum deserialization error.
+```kotlin
+enum class UserStatus { ONLINE, OFFLINE, @DefaultValue UNKNOWN }
+// ...
+kben.fromBencode<UserStatus>("4:IDLE") // returns UserStatus.UNKNOWN
+```
+
+### Change property serialization name
+
+Use the `@Bencode(name: String)` annotation on class properties to change their name when serializing and deserializing.
+```kotlin
+data class Book(
+    @Bencode("issue date")
+    val issueDate: LocalDate,
+)
+//...
+val encodedBook = kben.toBencode(Book(LocalDate.now())) 
+// d10:issue date10:2021-12-19e
 ```
 
 ### License
