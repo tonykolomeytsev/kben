@@ -1,5 +1,6 @@
 package kekmech.kben.domain
 
+import kekmech.kben.Kben
 import kekmech.kben.annotations.Bencode
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
@@ -8,7 +9,7 @@ import kotlin.test.assertEquals
 
 internal class SerializationContextTest {
 
-    private val context get() = SerializationContext(StandardTypeAdaptersFactory.createTypeAdapters(), emptyMap())
+    private val context get() = SerializationContext(Kben())
 
     @Test
     fun `serialize integers`() {

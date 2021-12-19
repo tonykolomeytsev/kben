@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("com.dampcake:bencode:1.3.2")
     implementation(kotlin("reflect"))
 }
 

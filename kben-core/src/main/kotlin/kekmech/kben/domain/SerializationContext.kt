@@ -1,18 +1,17 @@
 package kekmech.kben.domain
 
-import kekmech.kben.domain.adapters.AnyTypeAdapter
-import kekmech.kben.domain.adapters.EnumTypeAdapter
-import kekmech.kben.domain.adapters.IterableTypeAdapter
-import kekmech.kben.domain.adapters.MapTypeAdapter
+import kekmech.kben.Kben
 import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.io.BencodeOutputStream
 import java.io.ByteArrayOutputStream
 import kotlin.reflect.KClass
 
-class SerializationContext(
-    standardTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
-    customTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
-) : AbstractContext(standardTypeAdapters, customTypeAdapters) {
+class SerializationContext(kben: Kben) : AbstractContext(kben.standardTypeAdapters, kben.customTypeAdapters) {
+
+    private val iterableTypeAdapter = kben.iterableTypeAdapter
+    private val mapTypeAdapter = kben.mapTypeAdapter
+    private val enumTypeAdapter = kben.enumTypeAdapter
+    private val anyTypeAdapter = kben.anyTypeAdapter
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> toBencode(obj: T): BencodeElement {
@@ -21,13 +20,13 @@ class SerializationContext(
             typeAdapter != null ->
                 typeAdapter.toBencode(obj, this)
             obj is Iterable<*> ->
-                IterableTypeAdapter<T>().toBencode(obj as Iterable<T>, this)
+                iterableTypeAdapter.toBencode(obj as Iterable<T>, this)
             obj is Map<*, *> ->
-                MapTypeAdapter<T>().toBencode(obj as Map<String, T>, this)
+                mapTypeAdapter.toBencode(obj as Map<String, T>, this)
             obj is Enum<*> ->
-                EnumTypeAdapter().toBencode(obj, this)
+                enumTypeAdapter.toBencode(obj, this)
             else ->
-                AnyTypeAdapter<T>().toBencode(obj, this)
+                anyTypeAdapter.toBencode(obj, this)
         }
     }
 

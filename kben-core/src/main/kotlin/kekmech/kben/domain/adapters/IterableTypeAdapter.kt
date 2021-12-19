@@ -3,12 +3,11 @@ package kekmech.kben.domain.adapters
 import kekmech.kben.TypeHolder
 import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
-import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 
-internal class IterableTypeAdapter<T : Any> : TypeAdapter<Iterable<T>>() {
+internal class IterableTypeAdapter {
 
-    override fun fromBencode(
+    fun <T : Any> fromBencode(
         value: BencodeElement,
         context: DeserializationContext,
         typeHolder: TypeHolder
@@ -22,10 +21,10 @@ internal class IterableTypeAdapter<T : Any> : TypeAdapter<Iterable<T>>() {
         return iterable.toProperIterableType(typeHolder)
     }
 
-    private fun List<T>.toProperIterableType(typeHolder: TypeHolder): Iterable<T> =
+    private fun <T : Any> List<T>.toProperIterableType(typeHolder: TypeHolder): Iterable<T> =
         if (typeHolder.type == Set::class) toHashSet() else this
 
-    override fun toBencode(value: Iterable<T>, context: SerializationContext): BencodeElement {
+    fun <T : Any> toBencode(value: Iterable<T>, context: SerializationContext): BencodeElement {
         return BencodeElement.BencodeList(value.map { context.toBencode(it) })
     }
 }

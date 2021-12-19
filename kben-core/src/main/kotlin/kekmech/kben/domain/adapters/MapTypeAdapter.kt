@@ -3,12 +3,11 @@ package kekmech.kben.domain.adapters
 import kekmech.kben.TypeHolder
 import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
-import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 
-internal class MapTypeAdapter<T : Any> : TypeAdapter<Map<String, T>>() {
+internal class MapTypeAdapter {
 
-    override fun fromBencode(
+    fun <T : Any> fromBencode(
         value: BencodeElement,
         context: DeserializationContext,
         typeHolder: TypeHolder
@@ -20,7 +19,7 @@ internal class MapTypeAdapter<T : Any> : TypeAdapter<Map<String, T>>() {
             )
         }
 
-    override fun toBencode(value: Map<String, T>, context: SerializationContext): BencodeElement {
+    fun <T : Any> toBencode(value: Map<String, T>, context: SerializationContext): BencodeElement {
         return BencodeElement.BencodeDictionary(
             value
                 .mapValues { (_, value) -> context.toBencode(value) }

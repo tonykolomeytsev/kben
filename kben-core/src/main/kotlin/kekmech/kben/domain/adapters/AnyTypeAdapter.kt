@@ -4,7 +4,6 @@ import kekmech.kben.TypeHolder
 import kekmech.kben.annotations.Bencode
 import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
-import kekmech.kben.domain.TypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import java.lang.reflect.Modifier
 import kotlin.reflect.*
@@ -13,9 +12,9 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 
-internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
+internal class AnyTypeAdapter {
 
-    override fun fromBencode(
+    fun <T : Any> fromBencode(
         value: BencodeElement,
         context: DeserializationContext,
         typeHolder: TypeHolder,
@@ -74,7 +73,7 @@ internal class AnyTypeAdapter<T : Any> : TypeAdapter<T>() {
         }
     }
 
-    override fun toBencode(value: T, context: SerializationContext): BencodeElement {
+    fun <T : Any> toBencode(value: T, context: SerializationContext): BencodeElement {
         val dictionary = sortedMapOf<String, BencodeElement>()
         val properties = value::class.declaredMemberProperties.associateBy { it.name }
         @Suppress("UNCHECKED_CAST")

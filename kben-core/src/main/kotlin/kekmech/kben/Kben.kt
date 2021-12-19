@@ -4,6 +4,10 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.StandardTypeAdaptersFactory
 import kekmech.kben.domain.TypeAdapter
+import kekmech.kben.domain.adapters.AnyTypeAdapter
+import kekmech.kben.domain.adapters.EnumTypeAdapter
+import kekmech.kben.domain.adapters.IterableTypeAdapter
+import kekmech.kben.domain.adapters.MapTypeAdapter
 import java.io.ByteArrayInputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -38,14 +42,21 @@ class Kben(
     typeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>> = mapOf(),
 ) {
 
-    private val standardTypeAdapters = StandardTypeAdaptersFactory.createTypeAdapters()
-    private val customTypeAdapters = typeAdapters
+    internal val standardTypeAdapters = StandardTypeAdaptersFactory.createTypeAdapters()
+    internal val customTypeAdapters = typeAdapters
+    internal val iterableTypeAdapter = IterableTypeAdapter()
+    internal val mapTypeAdapter = MapTypeAdapter()
+    internal val anyTypeAdapter = AnyTypeAdapter()
+    internal val enumTypeAdapter = EnumTypeAdapter()
+
+    private val deserializationContext = DeserializationContext(this)
+    private val serializationContext = SerializationContext(this)
 
     /**
      * This method serializes the specified object into its equivalent Bencode representation.
      */
     fun <T : Any> toBencode(obj: T): ByteArray =
-        SerializationContext(standardTypeAdapters, customTypeAdapters).toBencodeByteArray(obj)
+        serializationContext.toBencodeByteArray(obj)
 
     /**
      * This method deserializes the specified Bencode into an object of the specified class. It is not
@@ -57,7 +68,7 @@ class Kben(
      * [Kben.fromBencode] with TypeHolder argument.
      */
     fun <T : Any> fromBencode(inputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
-        DeserializationContext(standardTypeAdapters, customTypeAdapters).fromBencodeByteArray(inputStream, typeHolder)
+        deserializationContext.fromBencodeByteArray(inputStream, typeHolder)
 }
 
 /**

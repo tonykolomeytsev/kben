@@ -1,5 +1,6 @@
 package kekmech.kben.domain
 
+import kekmech.kben.Kben
 import kekmech.kben.TypeHolder
 import kekmech.kben.annotations.Bencode
 import kekmech.kben.annotations.DefaultValue
@@ -12,7 +13,7 @@ import kotlin.test.assertEquals
 
 internal class DeserializationContextTest {
 
-    private val context get() = DeserializationContext(StandardTypeAdaptersFactory.createTypeAdapters(), emptyMap())
+    private val context get() = DeserializationContext(Kben())
 
     @Test
     fun `deserialize integers`() {
