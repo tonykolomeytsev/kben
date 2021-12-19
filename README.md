@@ -8,14 +8,14 @@ Kben - is a simple Bencode library for Kotlin. Library makes it easy to serializ
 
 **Bencode** is the encoding used by the peer-to-peer file sharing system BitTorrent for storing and transmitting loosely structured data.
 
-### Features
+## Features
 
 * Provide simple `toBencode()` and `fromBencode()` methods to convert Kotlin objects to Bencode and vice-versa.
 * Allow custom representations for objects (custom `TypeAdapter<T>`).
 * Support arbitrarily complex objects (with deep inheritance hierarchies and extensive use of generic types).
 * Provide converter for Retrofit.
 
-### Download
+## Download
 
 Library is distributed through JitPack.
 
@@ -41,36 +41,57 @@ allprojects {
 
 Note that the project is using Kotlin 1.6.0 and Kotlin Reflect API dependency.
 
-### Usage sample
+## Examples
 
-Converting objects  to bencode:
+### Converting objects to bencode
 
 ```kotlin
-data class User(val name: String, val password: String)
-// ...
 val kben = Kben()
 kben.toBencode(1) // i1e
 kben.toBencode("kben") // 4:kben
-kben.toBencode(listOf("kben", "are", "awesome")) // l4:kben3:are7:awesomee
-kben.tpBencode(User("John", "p@55w0rD")) // d4:name4John8:password8:p@55w0rDe
+
+kben.toBencode(
+    listOf(
+        "kben", 
+        "are", 
+        "awesome",
+    )
+) // l4:kben3:are7:awesomee
+
+data class Movie(val name: String, val year: Int)
+// ...
+kben.toBencode(
+    Movie(
+        name = "Matrix: Revolution", 
+        year = 2003,
+    )
+) // d4:name18:Matrix: Revolution4:yeari2003ee
 ```
 
-Converting bencode to objects:
+### Converting bencode to objects
 
 ```kotlin
+val kben = Kben()
 kben.fromBencode<Int>("i1e") // 1
 kben.fromBencode<String>("4:kben") // "kben"
-kben.fromBencode("l4:kben3:are7:awesomee", 
-    TypeHolder.ofList(String::class)) // listOf("kben", "are", "awesome")
-kben.fromBencode<User>(
-    "d4:name4John8:password8:p@55w0rDe") // User("John", "p@55w0rD")
+
+kben.fromBencode(
+    "l4:kben3:are7:awesomee", 
+    TypeHolder.ofList(String::class)
+) // listOf("kben", "are", "awesome")
+
+data class Movie(val name: String, val year: Int)
+// ...
+kben.fromBencode<Movie>(
+    "d4:name18:Matrix: Revolution4:yeari2003ee"
+) // Movie(name = "Matrix: Revolution", year = 2003)
 ```
 
 As you can see, to deserialize objects of class with type parameters, you need to provide `TypeHolder` to `fromBencode()` function (just like in Gson library). `TypeHolder` is a simplified type representation for the Kben deserializer.  `TypeHolder` is generated automatically for all classes that do not have type parameters (even if its properties still have type parameters).
 
 **Example:**  `TypeHolder` could not be generated for `List<String>`, but easily generated automatically for `data class Wrapper(val items: List<String>)`.
 
-If you don't want to deserialize bencode to a specific type, you can use the raw Kben datatypes (inherited from `BencodeElement`):
+If you don't want to deserialize bencode to a specific type, you can use the intermediate representation Kben datatypes (inherited from `BencodeElement`), or just use type `Any`:
 - `BencodeByteString` is a `byte string` from the bencode spec.
 - `BencodeInteger` is an `integer`.
 - `BencodeList` is a `list`.
@@ -78,14 +99,67 @@ If you don't want to deserialize bencode to a specific type, you can use the raw
 
 ```kotlin
 val kben = Kben()
-val e = kben.fromBencode<BencodeElement>("l5:hello5:worlde")
-check(e == BencodeList(elements = listOf("hello", "world")))
+
+assertEquals(
+    BencodeList(elements = listOf("hello", "world")),
+    kben.fromBencode<BencodeElement>("l5:hello5:worlde")
+)
+
+assertEquals(
+    listOf("hello", "world"),
+    kben.fromBencode<Any>("l5:hello5:worlde")
+)
 ```
 
-### What has not been completed yet? 
+### Using custom type adapters
 
-- Error handling is not yet complete.
-- Deserialization for objects of classes with `Any` type parameters.
+**ZonedDateTimeTypeAdapter.kt**:
+
+```kotlin
+class ZonedDateTimeTypeAdapter : TypeAdapter<ZonedDateTime>() {
+
+    override fun fromBencode(
+        value: BencodeElement,
+        context: DeserializationContext,
+        typeHolder: TypeHolder,
+    ): ZonedDateTime {
+        check(value is BencodeElement.BencodeByteString)
+        return ZonedDateTime
+            .parse(value.asString, DateTimeFormatter.ISO_DATE_TIME)
+    }
+
+    override fun toBencode(
+        value: ZonedDateTime, 
+        context: SerializationContext,
+    ): BencodeElement {
+        return BencodeElement.BencodeByteString(
+            DateTimeFormatter.ISO_DATE_TIME.format(value)
+        )
+    }
+}
+```
+
+**Usage**:
+
+```kotlin
+val kben = Kben(
+    typeAdapter = mapOf(
+        ZonedDateTime::class to ZonedDateTimeTypeAdapter(),
+    )
+)
+
+data class Message(val content: String, val timestamp: ZonedDateTime)
+// ...
+val message = Message(
+    content = "Hi!",
+    timestamp = ZonedDateTime.now()
+)
+val bencodedMessage = kben.toBencode(message)
+// d7:content3:Hi!9:timestamp47:2021-12-19T03:33:02.243313+03:00[Europe/Moscow]e
+
+val decodedMessage = kben.fromBencode<Message>(bencodedMessage)
+assertEquals(message, decodedMessage)
+```
 
 ### License
 
