@@ -2,6 +2,7 @@ package kekmech.kben.domain
 
 import kekmech.kben.TypeHolder
 import kekmech.kben.annotations.Bencode
+import kekmech.kben.annotations.DefaultValue
 import kekmech.kben.domain.dto.BencodeElement.*
 import kekmech.kben.mocks.Mocks
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -272,6 +273,38 @@ internal class DeserializationContextTest {
         assertEquals(
             TestEnum1.OPTION_2,
             context.fromBencode(BencodeByteString("OPTION_2"), TypeHolder.Simple(TestEnum1::class))
+        )
+    }
+
+    private enum class TestEnum2 {
+        @Bencode(name = "first option") OPTION_1,
+        @Bencode(name = "second option") OPTION_2
+    }
+
+    @Test
+    fun `deserialize enum with @Bencode annotated options`() {
+        assertEquals(
+            TestEnum2.OPTION_1,
+            context.fromBencode(BencodeByteString("first option"), TypeHolder.Simple(TestEnum2::class)),
+        )
+        assertEquals(
+            TestEnum2.OPTION_2,
+            context.fromBencode(BencodeByteString("second option"), TypeHolder.Simple(TestEnum2::class)),
+        )
+    }
+
+    private enum class TestEnum3 {
+        OPTION_1,
+        OPTION_2,
+
+        @DefaultValue UNKNOWN,
+    }
+
+    @Test
+    fun `deserialize enum with @DefaultValue annotated option`() {
+        assertEquals(
+            TestEnum3.UNKNOWN,
+            context.fromBencode(BencodeByteString("OPTION_3"), TypeHolder.Simple(TestEnum3::class)),
         )
     }
 

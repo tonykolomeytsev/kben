@@ -25,7 +25,7 @@ class SerializationContext(
             obj is Map<*, *> ->
                 MapTypeAdapter<T>().toBencode(obj as Map<String, T>, this)
             obj is Enum<*> ->
-                EnumTypeAdapter<T>().toBencode(obj, this)
+                EnumTypeAdapter().toBencode(obj, this)
             else ->
                 AnyTypeAdapter<T>().toBencode(obj, this)
         }

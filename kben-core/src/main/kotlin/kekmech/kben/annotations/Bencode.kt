@@ -4,7 +4,7 @@ package kekmech.kben.annotations
  * An annotation that indicates this member should be serialized to Bencode with
  * the provided name value as its field name.
  *
- * Example:
+ * **Example with properties**:
  * ```kotlin
  * data class User(
  *     @Bencode("full name")
@@ -21,6 +21,16 @@ package kekmech.kben.annotations
  * // output is User("Anton", "Prime")
  * val objectCopy =
  *     kben.fromBencode<User>(bencode)
+ * ```
+ *
+ * **Example with enums**:
+ * ```kotlin
+ * enum class UserStatus {
+ *     @Bencode("online") ONLINE,
+ *     @Bencode("offline") OFFLINE
+ * }
+ * // ...
+ * kben.toBencode(UserStatus.ONLINE) // '6:online'
  * ```
  */
 @Retention(AnnotationRetention.RUNTIME)

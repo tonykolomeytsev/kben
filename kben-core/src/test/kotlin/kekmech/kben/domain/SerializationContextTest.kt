@@ -249,4 +249,21 @@ internal class SerializationContextTest {
             context.toBencode(TestEnum1.OPTION_2)
         )
     }
+
+    private enum class TestEnum2 {
+        @Bencode(name = "first option") OPTION_1,
+        @Bencode(name = "second option") OPTION_2
+    }
+
+    @Test
+    fun `serialize enum with @Bencode annotated options`() {
+        assertEquals(
+            BencodeByteString("first option"),
+            context.toBencode(TestEnum2.OPTION_1)
+        )
+        assertEquals(
+            BencodeByteString("second option"),
+            context.toBencode(TestEnum2.OPTION_2)
+        )
+    }
 }

@@ -32,7 +32,7 @@ class DeserializationContext(
             typeHolder.type.isSubclassOf(Map::class) ->
                 MapTypeAdapter<T>().fromBencode(bencodeElement, this, typeHolder)
             typeHolder.type.isSubclassOf(Enum::class) ->
-                EnumTypeAdapter<T>().fromBencode(bencodeElement, this, typeHolder)
+                EnumTypeAdapter().fromBencode(bencodeElement, this, typeHolder)
             else ->
                 AnyTypeAdapter<T>().fromBencode(bencodeElement, this, typeHolder)
         }
