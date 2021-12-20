@@ -7,12 +7,12 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.6.0" apply false
+    kotlin("jvm") version "1.6.10" apply false
 }
 
 allprojects {
     group = "kekmech"
-    version = "0.1.4"
+    version = "0.1.5"
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
