@@ -33,11 +33,15 @@ allprojects {
 
 - Core - the library. Bencode serializer/deserializer for Kotlin.
 
-  `implementation("com.github.tonykolomeytsev.kben:kben-core:0.1.4")`
+  `implementation("com.github.tonykolomeytsev.kben:kben-core:0.1.5")`
 
 - Retrofit Converter.
 
-  `implementation("com.github.tonykolomeytsev.kben:kben-retrofit-converter:0.1.4")`
+  `implementation("com.github.tonykolomeytsev.kben:kben-retrofit-converter:0.1.5")`
+
+- Ktor ContentConverter.
+
+  `implementation("com.github.tonykolomeytsev.kben:kben-ktor-converter:0.1.5")`
 
 Note that the project is using Kotlin 1.6.0 and Kotlin Reflect API dependency.
 
