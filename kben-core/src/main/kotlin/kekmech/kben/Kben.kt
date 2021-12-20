@@ -4,7 +4,7 @@ import kekmech.kben.domain.DeserializationContext
 import kekmech.kben.domain.SerializationContext
 import kekmech.kben.domain.StandardTypeAdaptersFactory
 import kekmech.kben.domain.TypeAdapter
-import java.io.ByteArrayInputStream
+import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -56,14 +56,14 @@ class Kben(
      * generic type. For the cases when the object is of generic type, invoke
      * [Kben.fromBencode] with TypeHolder argument.
      */
-    fun <T : Any> fromBencode(inputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
+    fun <T : Any> fromBencode(inputStream: InputStream, typeHolder: TypeHolder): T =
         DeserializationContext(standardTypeAdapters, customTypeAdapters).fromBencodeByteArray(inputStream, typeHolder)
 }
 
 /**
  * This method deserializes the specified Bencode into an object of the specified class.
  */
-inline fun <reified T : Any> Kben.fromBencode(inputStream: ByteArrayInputStream): T =
+inline fun <reified T : Any> Kben.fromBencode(inputStream: InputStream): T =
     fromBencode(
         inputStream = inputStream,
         typeHolder = when {
