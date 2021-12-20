@@ -7,7 +7,7 @@ import kekmech.kben.domain.adapters.IterableTypeAdapter
 import kekmech.kben.domain.adapters.MapTypeAdapter
 import kekmech.kben.domain.dto.BencodeElement
 import kekmech.kben.io.BencodeInputStream
-import java.io.ByteArrayInputStream
+import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -16,8 +16,8 @@ class DeserializationContext(
     customTypeAdapters: Map<KClass<out Any>, TypeAdapter<out Any>>,
 ) : AbstractContext(standardTypeAdapters, customTypeAdapters) {
 
-    fun <T : Any> fromBencodeByteArray(byteArrayInputStream: ByteArrayInputStream, typeHolder: TypeHolder): T =
-        byteArrayInputStream
+    fun <T : Any> fromBencodeByteArray(inputStream: InputStream, typeHolder: TypeHolder): T =
+        inputStream
             .use { decodeElement(it) }
             .let { fromBencode(it, typeHolder) }
 
@@ -39,6 +39,6 @@ class DeserializationContext(
         return ret as T
     }
 
-    private fun decodeElement(stream: ByteArrayInputStream): BencodeElement =
-        BencodeInputStream(stream).readBencodeElement()
+    private fun decodeElement(inputStream: InputStream): BencodeElement =
+        BencodeInputStream(inputStream).readBencodeElement()
 }
