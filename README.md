@@ -43,7 +43,7 @@ allprojects {
 
   `implementation("com.github.tonykolomeytsev.kben:kben-ktor-converter:0.1.5")`
 
-Note that the project is using Kotlin 1.6.0 and Kotlin Reflect API dependency.
+Note that the project is using Kotlin 1.6.10 and Kotlin Reflect API dependency.
 
 ## Examples
 
