@@ -201,6 +201,20 @@ val encodedBook = kben.toBencode(Book(LocalDate.now()))
 // d10:issue date10:2021-12-19e
 ```
 
+### Library limitations
+
+When serializing and deserializing objects, the library is guided by the properties set from the primary constructor of the class. This is the reason why it is better to use a library for serializing and deserializing data class instances rather than any other kind of classes.
+
+**The object will not be serialized correctly**:
+
+```kotlin
+class BrokenClass {
+    val brokenField: String = "test"
+}
+
+kben.toBencode(BrokenClass()) // returns empty bencode dictionary
+```
+
 ### License
 
 Distributed under the MIT license. See `LICENSE` for more information.
